@@ -59,6 +59,10 @@ h2 .en{display:block;font-size:12px;letter-spacing:4px;color:var(--muted);font-w
 .game li{padding:7px 0;border-top:1px dashed var(--rule);display:flex;justify-content:space-between;gap:12px}
 .game li i{font-style:normal;color:var(--muted);flex-shrink:0}
 .game li b{font-weight:600;text-align:right}
+.game .cover{display:block;width:100%;aspect-ratio:630/500;object-fit:cover;border-radius:10px;margin-bottom:16px;border:1px solid var(--rule);position:relative;z-index:1}
+.game .play{display:inline-block;margin-top:16px;padding:11px 24px;border-radius:9px;font-size:14.5px;font-weight:700;letter-spacing:.5px;background:linear-gradient(120deg,#F0CE85,#DEA94F);color:#241A05;box-shadow:0 8px 22px rgba(232,193,112,.22);transition:transform .15s,box-shadow .15s;position:relative;z-index:1}
+.game .play:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(232,193,112,.32)}
+.game .play::after{content:" →";font-weight:400}
 .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;counter-reset:step}
 .step{background:var(--bg3);border:1px solid var(--rule);border-radius:14px;padding:22px;position:relative}
 .step::before{counter-increment:step;content:"M" counter(step);position:absolute;top:16px;right:18px;font-size:13px;color:var(--violet);letter-spacing:1px;font-weight:700}
@@ -94,7 +98,8 @@ footer .links a{margin:0 10px;color:var(--gold)}
     <h1>用<em>一人 + 一队 AI</em><br>做出有品味的游戏</h1>
     <p class="sub">人类负责品味、判断、责任与玩家关系；AI 负责规模、速度与不知疲倦的执行。我们相信小团队可以打赢大厂。</p>
     <div class="cta">
-      <a class="btn gold" href="#games">查看产品线</a>
+      <a class="btn gold" href="https://gsygame.itch.io/bai-gui-ye-xing" target="_blank" rel="noopener">立即试玩 · 百鬼夜行</a>
+      <a class="btn ghost" href="https://gsygame.itch.io/beast-courtyard" target="_blank" rel="noopener">立即试玩 · 神兽庭院</a>
       <a class="btn ghost" href="#model">了解协作模式</a>
     </div>
   </div>
@@ -106,6 +111,7 @@ footer .links a{margin:0 10px;color:var(--gold)}
     <p class="lead">2026-11-02 双立项门同日通过，按里程碑逐笔审批预算，共用一条 AI 生产管线。</p>
     <div class="games">
       <div class="game a">
+        <img class="cover" src="cover-a-bai-gui-630x500.png" alt="《百鬼夜行》封面">
         <span class="tag">方向 A · 主线一</span>
         <h3>百鬼夜行</h3>
         <div class="genre">肉鸽割草 × 塔防 · 微信小游戏首发</div>
@@ -117,8 +123,10 @@ footer .links a{margin:0 10px;color:var(--gold)}
           <li><i>竞品锚点</i><b>《向僵尸开炮》畅销登顶</b></li>
           <li><i>首发平台</i><b>微信（PC 同步）→ 抖音</b></li>
         </ul>
+        <a class="play" href="https://gsygame.itch.io/bai-gui-ye-xing" target="_blank" rel="noopener">itch 试玩《百鬼夜行》</a>
       </div>
       <div class="game b">
+        <img class="cover" src="cover-b-beast-courtyard-630x500.png" alt="《神兽庭院》封面">
         <span class="tag">方向 B · 主线二</span>
         <h3>神兽庭院</h3>
         <div class="genre">Merge-2 合成消除 · 出海中轻度手游</div>
@@ -130,6 +138,7 @@ footer .links a{margin:0 10px;color:var(--gold)}
           <li><i>差异化</i><b>题材空位 + 轻社交互访</b></li>
           <li><i>管线</i><b>与方向 A 共用 AI 生产线</b></li>
         </ul>
+        <a class="play" href="https://gsygame.itch.io/beast-courtyard" target="_blank" rel="noopener">itch 试玩《神兽庭院》</a>
       </div>
     </div>
   </div>
