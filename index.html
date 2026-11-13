@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>灵境游戏 Lingjing Games — 人 + AI 的游戏工作室</title>
-<meta name="description" content="灵境游戏：以「一人 + 一队 AI」的组织形态，持续做出有品味、有口碑、能赚钱的游戏。两条产品主线：百鬼夜行（肉鸽割草×塔防）与神兽庭院（Merge-2 出海）。">
+<meta name="description" content="灵境游戏：以「一人 + 一队 AI」的组织形态，持续做出有品味、有口碑、能赚钱的游戏。四条产品线：百鬼夜行、神兽庭院（已上线试玩），归位收纳屋、夜航怪谈（M2 进行中）。">
 <style>
 :root{
   --bg:#0A0E1A; --bg2:#111730; --bg3:#0D1226;
@@ -49,9 +49,13 @@ h2 .en{display:block;font-size:12px;letter-spacing:4px;color:var(--muted);font-w
 .game::after{content:"";position:absolute;top:-60px;right:-60px;width:160px;height:160px;border-radius:50%;filter:blur(10px);opacity:.35;pointer-events:none}
 .game.a::after{background:radial-gradient(closest-side,var(--red),transparent)}
 .game.b::after{background:radial-gradient(closest-side,var(--jade),transparent)}
+.game.c::after{background:radial-gradient(closest-side,var(--violet),transparent)}
+.game.d::after{background:radial-gradient(closest-side,var(--gold),transparent)}
 .tag{display:inline-block;font-size:12px;letter-spacing:1px;padding:3px 10px;border-radius:999px;margin-bottom:14px}
 .game.a .tag{background:rgba(242,112,138,.14);color:var(--red);border:1px solid rgba(242,112,138,.35)}
 .game.b .tag{background:rgba(79,209,165,.12);color:var(--jade);border:1px solid rgba(79,209,165,.35)}
+.game.c .tag{background:rgba(139,124,246,.14);color:#A99DFB;border:1px solid rgba(139,124,246,.4)}
+.game.d .tag{background:rgba(232,193,112,.14);color:var(--gold);border:1px solid rgba(232,193,112,.4)}
 .game h3{font-size:22px;letter-spacing:1px;margin-bottom:4px}
 .game .genre{font-size:14px;color:var(--gold);margin-bottom:14px}
 .game p{font-size:14.5px;color:var(--muted);margin-bottom:16px}
@@ -107,8 +111,8 @@ footer .links a{margin:0 10px;color:var(--gold)}
 
 <section id="games">
   <div class="wrap">
-    <h2><span class="en">Product Lines</span>两条产品主线</h2>
-    <p class="lead">2026-11-02 双立项门同日通过，按里程碑逐笔审批预算，共用一条 AI 生产管线。</p>
+    <h2><span class="en">Product Lines</span>四条产品线</h2>
+    <p class="lead">A、B 两条已上线 itch.io 开放试玩；C、D 于 2026-11-10 通过立项门与原型门，进入 M2 垂直切片。全部按里程碑逐笔审批预算，共用一条 AI 生产管线。</p>
     <div class="games">
       <div class="game a">
         <img class="cover" src="cover-a-bai-gui-630x500.png" alt="《百鬼夜行》封面">
@@ -140,6 +144,34 @@ footer .links a{margin:0 10px;color:var(--gold)}
         </ul>
         <a class="play" href="https://gsygame.itch.io/beast-courtyard" target="_blank" rel="noopener">itch 试玩《神兽庭院》</a>
       </div>
+      <div class="game c">
+        <span class="tag">方向 C · 主线三</span>
+        <h3>归位 · 收纳屋</h3>
+        <div class="genre">堆叠收纳 × 分类消除 · 微信小游戏</div>
+        <p>把搬家现场层层搬空、按类装箱：5 槽临时位、箱子轮换、广告扩槽/续时。M2 扩至 <b style="color:var(--gold)">12 间房 / 3 个主题</b>（老城公寓、新婚小家、告别老宅），每间一段搬家日记。单局 90~160 秒。</p>
+        <ul>
+          <li><i>变现</i><b>IAA 激励视频为主 + 轻 IAP</b></li>
+          <li><i>竞品锚点</i><b>收纳物语 / Triple Match City</b></li>
+          <li><i>目标用户</i><b>25~45 女性与泛休闲</b></li>
+          <li><i>首发平台</i><b>微信（PC 同步）→ 抖音</b></li>
+          <li><i>状态</i><b>M2 垂直切片进行中</b></li>
+        </ul>
+        <a class="play" href="c-guiwei.html" target="_blank" rel="noopener">在线试玩《归位》灰盒</a>
+      </div>
+      <div class="game d">
+        <span class="tag">方向 D · 主线四</span>
+        <h3>Night Ferry 夜航怪谈</h3>
+        <div class="genre">寻物解谜 × 章节怪谈 · 海外 iOS/Android</div>
+        <p>在雾夜渡轮的船舱里按线索找出 6 件旧物，点错扣时、提示看广告；3 章 18 件目标物。M2 加入<b style="color:var(--gold)">船舱装饰系统</b>（每章三选一，跨局收藏）。单章 60~120 秒。</p>
+        <ul>
+          <li><i>首发市场</i><b>美 / 英 / 加（英语首发）</b></li>
+          <li><i>变现</i><b>IAP 章节/体力 + IAA 提示</b></li>
+          <li><i>竞品锚点</i><b>June's Journey / Find The Cat</b></li>
+          <li><i>差异化</i><b>每件旧物一句怪谈</b></li>
+          <li><i>状态</i><b>M2 垂直切片进行中</b></li>
+        </ul>
+        <a class="play" href="d-yehang.html" target="_blank" rel="noopener">在线试玩《夜航怪谈》灰盒</a>
+      </div>
     </div>
   </div>
 </section>
@@ -151,7 +183,7 @@ footer .links a{margin:0 10px;color:var(--gold)}
     <div class="flow">
       <div class="step">
         <h4>灰盒原型</h4>
-        <p>验证核心循环与手感：守城割草 / 合成订单，色块灰盒即可开测。</p>
+        <p>验证核心循环与手感：守城割草 / 合成订单 / 收纳装箱 / 寻物解谜，色块灰盒即可开测。</p>
       </div>
       <div class="step">
         <h4>垂直切片</h4>

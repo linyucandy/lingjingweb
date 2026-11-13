@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>归位 · 收纳屋｜M2 垂直切片（LJ-T-003）</title>
+<style>
+  :root{
+    --bg:#f3eadf; --card:#fffaf3; --ink:#3b322b; --muted:#8c7f73;
+    --line:#e6d9c8; --accent:#c98b6b; --accent2:#9bbf9a; --gold:#d9a441;
+    --shadow:0 8px 24px rgba(92,66,44,.12);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; min-height:100%;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #fff8ec 0%, rgba(255,248,236,0) 60%),
+      linear-gradient(180deg,#f6eee3 0%, #efe3d4 100%);
+    color:var(--ink);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    display:flex; justify-content:center;
+  }
+  #app{width:100%; max-width:540px; min-height:100dvh; display:flex; flex-direction:column; gap:8px; padding:10px 10px 18px;}
+  header{display:flex; flex-direction:column; gap:6px;}
+  .brandRow{display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
+  .brand{font-size:18px; font-weight:800; letter-spacing:2px;}
+  .brand span{font-size:11px; font-weight:500; color:var(--muted); letter-spacing:1px; margin-left:6px;}
+  .roomTag{font-size:11px; color:var(--muted);}
+  .hud{display:flex; gap:6px;}
+  .hudChip{flex:1; background:rgba(255,250,243,.8); border:1px solid var(--line); border-radius:10px; padding:5px 8px; font-size:11px; color:var(--muted); display:flex; justify-content:space-between; align-items:center;}
+  .hudChip b{font-size:13px; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .cleanTrack{height:6px; background:#e7d9c6; border-radius:99px; overflow:hidden;}
+  .cleanTrack i{display:block; height:100%; width:0%; background:linear-gradient(90deg,#b6d3a8,#7fae7a); transition:width .35s;}
+  #roomWrap{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:8px; box-shadow:var(--shadow);}
+  #room{
+    position:relative; height:clamp(310px,46vh,420px); border-radius:14px; overflow:hidden;
+    background:linear-gradient(180deg,#f1e4d2 0%, #efe0cb 61%, #d9b892 61%, #cfa87f 100%);
+    isolation:isolate;
+  }
+  #room::before{
+    content:""; position:absolute; inset:0 0 39% 0;
+    background-image:radial-gradient(rgba(160,125,90,.10) 1px, transparent 1px);
+    background-size:18px 18px; opacity:.8;
+  }
+  /* M2：3 个主题的房间底调 */
+  #room[data-theme="t2"]{background:linear-gradient(180deg,#fbe9e6 0%, #f7dcd5 61%, #e6bfa8 61%, #dcb094 100%);}
+  #room[data-theme="t2"]::before{background-image:radial-gradient(rgba(200,140,120,.12) 1px, transparent 1px);}
+  #room[data-theme="t3"]{background:linear-gradient(180deg,#eae6da 0%, #ded9c9 61%, #bbae93 61%, #a89a80 100%);}
+  #room[data-theme="t3"]::before{background-image:radial-gradient(rgba(115,105,85,.14) 1px, transparent 1px);}
+  .window{
+    position:absolute; left:7%; top:9%; width:24%; height:31%;
+    background:linear-gradient(180deg,#bcd8ea,#e8f2f8); border:6px solid #fffaf3; border-radius:9px;
+    box-shadow:0 6px 16px rgba(70,90,110,.12), inset 0 0 20px rgba(255,255,255,.7);
+  }
+  .window::after{content:""; position:absolute; inset:0; background:
+    linear-gradient(90deg,transparent 47%, rgba(255,255,255,.85) 47% 53%, transparent 53%),
+    linear-gradient(180deg,transparent 47%, rgba(255,255,255,.85) 47% 53%, transparent 53%);}
+  .shelf{position:absolute; right:7%; top:16%; width:30%; height:7px; background:#c8a983; border-radius:4px; box-shadow:0 4px 0 rgba(120,90,60,.15);}
+  .shelf::after{content:"🪴  🖼️"; position:absolute; right:0; bottom:7px; font-size:18px; opacity:.55; letter-spacing:6px;}
+  .rug{position:absolute; left:18%; bottom:5%; width:60%; height:18%; background:radial-gradient(ellipse at center,#ecd3b4 0%, #e6c9a8 60%, rgba(230,201,168,0) 72%); opacity:.9;}
+  #roomLabel{
+    position:absolute; left:10px; top:10px; z-index:900; font-size:11px; color:#6f5f50;
+    background:rgba(255,250,243,.82); border:1px solid var(--line); padding:4px 9px; border-radius:99px; backdrop-filter:blur(4px);
+  }
+  #storyBar{
+    margin-top:8px; display:flex; gap:8px; align-items:flex-start; background:#fdf6ec; border:1px dashed #e2cfb4;
+    border-radius:10px; padding:8px 10px; font-size:12px; line-height:1.55; color:#6b5b4c; min-height:44px;
+  }
+  #storyBar .ico{flex:0 0 auto; width:3px; align-self:stretch; margin:2px 0; background:var(--accent); border-radius:3px;}
+  #items{position:absolute; inset:0; z-index:20;}
+  .item{
+    position:absolute; width:clamp(38px,9.6vw,48px); aspect-ratio:1; margin:0; padding:0; border:none;
+    transform:translate(-50%,-50%) rotate(var(--r,0deg));
+    border-radius:11px; background:linear-gradient(180deg,#fffdf9,#f4e8d8);
+    box-shadow:0 3px 0 rgba(120,90,60,.16), 0 6px 12px rgba(90,60,35,.12);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; line-height:1; cursor:pointer;
+    transition:transform .16s, opacity .2s, filter .2s; user-select:none; touch-action:manipulation;
+  }
+  .item .ie{font-size:clamp(18px,4.6vw,23px); line-height:1.08;}
+  .item .ie svg{width:clamp(21px,5.2vw,26px); height:clamp(21px,5.2vw,26px); display:block; fill:none; stroke:#6b5b4c; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;}
+  .item.blocked .ie svg{stroke:#8b7a68;}
+  .item .il{font-size:8px; line-height:1.15; color:#8b7a68; letter-spacing:.4px;}
+  .item:hover{filter:brightness(1.04);}
+  .item.blocked{filter:brightness(.82) saturate(.82); box-shadow:0 2px 0 rgba(120,90,60,.10); cursor:not-allowed;}
+  .item.taken{opacity:0; transform:translate(-50%,-50%) scale(.25) rotate(var(--r,0deg)); pointer-events:none;}
+  .item.shake{animation:shake .35s;}
+  @keyframes shake{0%,100%{transform:translate(-50%,-50%) rotate(var(--r,0deg));}25%{transform:translate(-54%,-50%) rotate(calc(var(--r,0deg) - 4deg));}75%{transform:translate(-46%,-50%) rotate(calc(var(--r,0deg) + 4deg));}}
+  .spark{position:absolute; width:6px; height:6px; border-radius:99px; z-index:60; pointer-events:none; animation:spark .6s ease-out forwards;}
+  @keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.2); opacity:0;}}
+  #bubble{
+    position:absolute; left:50%; bottom:10px; transform:translateX(-50%); z-index:800;
+    background:rgba(59,50,43,.9); color:#fff7ea; font-size:11px; padding:7px 12px; border-radius:99px;
+    opacity:0; transition:opacity .2s; pointer-events:none; white-space:nowrap;
+  }
+  #bubble.show{opacity:1;}
+  .trayRow{display:flex; gap:7px;}
+  #boxes{margin-top:2px;}
+  .box{
+    flex:1; min-width:0; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:7px 8px 6px;
+    box-shadow:0 3px 10px rgba(92,66,44,.06); transition:transform .15s, box-shadow .2s, opacity .2s;
+  }
+  .box.hot{box-shadow:0 0 0 2px rgba(201,139,107,.35), 0 6px 18px rgba(92,66,44,.12);}
+  .box.done{animation:boxDone .45s ease forwards;}
+  @keyframes boxDone{0%{transform:scale(1);}45%{transform:scale(1.08);}100%{transform:scale(.9); opacity:0;}}
+  .boxTop{display:flex; align-items:center; gap:5px;}
+  .boxIcon{width:9px; height:9px; border-radius:50%; flex:0 0 auto;}
+  .boxName{font-size:11px; font-weight:700; color:#5a4a3d; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .boxCount{margin-left:auto; font-size:10px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .dots{display:flex; gap:3px; margin-top:5px;}
+  .dots i{flex:1; height:4px; border-radius:99px; background:#e9dccb;}
+  .dots i.on{background:var(--accent);}
+  .slot{
+    flex:1; aspect-ratio:1; border-radius:10px; border:1.5px dashed #d9c7b1; background:rgba(255,250,243,.55);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; font-size:18px; color:#c9b8a4; cursor:pointer; transition:transform .15s, background .2s;
+    min-width:0;
+  }
+  .slot .se{font-size:17px; line-height:1.1;}
+  .slot .se svg{width:19px; height:19px; display:block; fill:none; stroke:#7a6a58; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;}
+  .slot .sl{font-size:7px; line-height:1.15; color:#8b7a68; letter-spacing:.4px;}
+  .slot.filled{background:#fffaf3; border-style:solid; border-color:#e2cdb4; box-shadow:0 2px 0 rgba(120,90,60,.10);}
+  .slot.shake{animation:shakeSlot .3s;}
+  @keyframes shakeSlot{0%,100%{transform:translateX(0);}30%{transform:translateX(-3px);}70%{transform:translateX(3px);}}
+  .slotTag{display:flex; align-items:center; justify-content:space-between; font-size:10px; color:var(--muted); margin:2px 1px 0;}
+  .slotTag b{font-variant-numeric:tabular-nums; color:#6b5b4c;}
+  footer{display:flex; gap:8px; margin-top:2px;}
+  button.ui{
+    flex:1; padding:9px 10px; border-radius:10px; border:1px solid var(--line); background:#fffaf3; color:#5a4a3d;
+    font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 2px 0 rgba(120,90,60,.08);
+  }
+  button.ui:active{transform:translateY(1px);}
+  #perf{margin-top:4px; font:11px ui-monospace,Menlo,Consolas,monospace; color:#6d8a6a; background:#f7fbf4; border:1px solid #dce8d6; border-radius:8px; padding:5px 9px;}
+  #logPanel{background:#fbf7f0; border:1px solid #e6d9c8; border-radius:10px; overflow:hidden; font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .logHead{display:flex; gap:8px; align-items:center; padding:6px 9px; background:#f4ecdf; font-size:10px; color:#8a7a68;}
+  .logHead button{font-size:10px; padding:2px 8px; border:1px solid #d9c7b1; background:#fffaf3; color:#6b5b4c; border-radius:5px; cursor:pointer;}
+  #logBody{max-height:132px; overflow-y:auto; padding:5px 9px; font-size:10px; line-height:1.7; color:#8a7a68;}
+  #logBody .ev b{color:#b07b55; font-weight:400;}
+  #logBody .d{color:#b3a392;}
+  .modalBg{position:fixed; inset:0; z-index:2000; background:rgba(52,40,30,.45); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:18px;}
+  .modalBg.hidden{display:none;}
+  .modal{
+    width:100%; max-width:380px; background:#fffaf3; border:1px solid #eadbc7; border-radius:20px; padding:20px 18px 16px;
+    box-shadow:0 24px 60px rgba(52,40,30,.25); text-align:center;
+  }
+  .modal h1{font-size:22px; margin:0 0 4px; letter-spacing:3px;}
+  .modal h2{font-size:18px; margin:0 0 8px; color:#5a4a3d;}
+  .modal .sub{font-size:12px; color:var(--muted); margin:0 0 14px; line-height:1.6;}
+  .modal p{font-size:12px; color:#6b5b4c; line-height:1.7; margin:7px 0;}
+  .rules{text-align:left; background:#fdf5e9; border:1px dashed #e2cfb4; border-radius:10px; padding:9px 11px; font-size:11.5px; color:#6b5b4c; line-height:1.7; margin:0 0 14px;}
+  .rules b{color:#a8694a;}
+  .modalBtns{display:flex; gap:8px; margin-top:14px;}
+  .modalBtns button{flex:1; padding:11px 8px; border-radius:11px; border:none; background:var(--accent); color:#fff; font-size:13px; font-weight:700; cursor:pointer;}
+  .modalBtns button.ghost{background:#efe4d5; color:#5a4a3d;}
+  .stars{font-size:28px; letter-spacing:6px; color:var(--gold); margin:6px 0 4px; height:34px;}
+  .statRow{display:flex; justify-content:space-between; font-size:12px; color:#6b5b4c; padding:5px 2px; border-bottom:1px solid #f0e4d5;}
+  .statRow:last-child{border-bottom:none;}
+  .statRow b{color:#3b322b; font-variant-numeric:tabular-nums;}
+  .storyCard{text-align:left; background:#f8efe2; border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.75; color:#6b5b4c; margin:10px 0 2px;}
+  .adCount{font-size:42px; font-weight:800; color:var(--accent); margin:8px 0 2px;}
+  /* M2-B2：复原陈设（纯 CSS 手绘，不依赖 emoji 字体） */
+  #room.restored{box-shadow:inset 0 0 70px rgba(255,214,140,.35);}
+  #restoreLayer{position:absolute; inset:0; z-index:6; pointer-events:none;}
+  .furn{position:absolute; opacity:0; transform:translateY(12px) scale(.97); transition:opacity .55s ease, transform .6s cubic-bezier(.2,.8,.3,1);}
+  #room.restored .furn{opacity:1; transform:translateY(0) scale(1);}
+  .f-sofa{background:#cba98a; border-radius:10px 10px 5px 5px; box-shadow:inset 0 -6px 0 rgba(120,90,60,.16);}
+  .f-sofa::before{content:""; position:absolute; left:-5%; right:-5%; top:-30%; height:40%; background:#d6b696; border-radius:8px; box-shadow:inset 0 -3px 0 rgba(120,90,60,.10);}
+  .f-sofa::after{content:""; position:absolute; left:5%; right:5%; bottom:8%; height:24%; background:rgba(255,250,243,.6); border-radius:4px;}
+  .f-bed{background:#e8d5bf; border-radius:6px; box-shadow:inset 0 7px 0 #f4e6d6, inset 0 -5px 0 rgba(120,90,60,.14);}
+  .f-bed::before{content:""; position:absolute; left:6%; top:12%; width:26%; height:32%; background:#fffaf3; border-radius:4px; box-shadow:0 1px 2px rgba(120,90,60,.12);}
+  .f-desk{background:#c8a983; border-radius:4px; box-shadow:0 2px 0 rgba(120,90,60,.12);}
+  .f-desk::before,.f-desk::after{content:""; position:absolute; bottom:-150%; width:10%; height:150%; background:#b2906c; border-radius:2px;}
+  .f-desk::before{left:10%;}
+  .f-desk::after{right:10%;}
+  .f-shelf{background:#c8a983; border-radius:3px; box-shadow:0 3px 0 rgba(120,90,60,.14);}
+  .f-shelf::before{content:""; position:absolute; left:3%; right:3%; bottom:100%; height:260%; border-radius:2px;
+    background:repeating-linear-gradient(90deg,#c8a983 0 2%, #a8c0e8 2% 5%, #c8a983 5% 8%, #e8b8a0 8% 11%, #c8a983 11% 14%, #9fcdb4 14% 17%, #c8a983 17% 20%);}
+  .f-wardrobe{background:#c19a76; border-radius:5px; box-shadow:inset 0 5px 0 rgba(255,250,243,.18);}
+  .f-wardrobe::before{content:""; position:absolute; left:50%; top:2%; bottom:2%; width:2px; background:rgba(255,250,243,.5);}
+  .f-wardrobe::after{content:""; position:absolute; left:calc(50% - 7px); top:48%; width:4px; height:4px; border-radius:50%; background:#7d5f45; box-shadow:7px 0 0 #7d5f45;}
+  .f-table{background:#cfa87f; border-radius:4px;}
+  .f-table::before{content:""; position:absolute; left:50%; top:100%; width:10%; height:160%; margin-left:-5%; background:#b3906c; border-radius:0 0 2px 2px;}
+  .f-crib{background:repeating-linear-gradient(90deg,#e0c3a0 0 5%, #fffaf3 5% 7.5%); border-radius:4px; box-shadow:inset 0 5px 0 #e6cbab;}
+  .f-clock{border-radius:50%; background:#f6ecdc; border:3px solid #b08a63; box-shadow:0 4px 10px rgba(90,60,35,.16);}
+  .f-clock::before{content:""; position:absolute; left:50%; top:24%; width:2px; height:28%; margin-left:-1px; background:#8a6a4a; transform-origin:bottom center; transform:rotate(28deg);}
+  .f-clock::after{content:""; position:absolute; left:50%; top:50%; width:20%; height:2px; margin-top:-1px; background:#8a6a4a;}
+  .f-plant{border-radius:3px 3px 8px 8px; background:#c98b6b; box-shadow:inset 0 3px 0 rgba(255,250,243,.35);}
+  .f-plant::before{content:""; position:absolute; left:50%; bottom:92%; width:120%; height:150%; margin-left:-60%; border-radius:50% 50% 44% 44%;
+    background:radial-gradient(ellipse at 50% 82%, #9bbf9a 0%, #7fae7a 62%, rgba(127,174,122,0) 74%);}
+  .f-lamp{background:#e8c898; clip-path:polygon(14% 0,86% 0,100% 100%,0 100%);}
+  .f-lamp::before{content:""; position:absolute; left:50%; top:100%; width:8%; height:150%; margin-left:-4%; background:#b08a63;}
+  .f-rug{border-radius:50%; background:radial-gradient(ellipse at center,#ecd3b4 0%, #e6c9a8 60%, rgba(230,201,168,0) 74%);}
+  .f-frame{border:4px solid #dcbb93; border-radius:2px; background:linear-gradient(160deg,#cfe0ea,#eef6fa);}
+  .f-frame::after{content:""; position:absolute; left:50%; top:50%; width:34%; height:34%; margin:-17% 0 0 -17%; border-radius:50%; background:rgba(140,170,190,.35);}
+  .f-box{background:#d7b489; border-radius:2px; box-shadow:inset 0 0 0 2px rgba(120,90,60,.18);}
+  .f-box::before{content:""; position:absolute; left:0; right:0; top:42%; height:16%; background:rgba(120,90,60,.22);}
+  /* M2-B2：日记 / 门牌墙面板 */
+  .diaryCard{text-align:left; background:#f8efe2; border-radius:10px; padding:10px 12px; margin:8px 0 2px;}
+  .diaryHead{display:flex; justify-content:space-between; font-size:10px; color:#a08e7c; letter-spacing:.5px; margin-bottom:5px;}
+  .diaryCard b{display:block; font-size:12.5px; color:#8a5a3c; margin-bottom:4px;}
+  .diaryCard p{margin:0; font-size:11.5px; line-height:1.75; color:#6b5b4c;}
+  .diarySign{margin-top:6px; font-size:10.5px; color:#a08e7c; text-align:right;}
+  .houseDone{margin-top:8px; font-size:11px; color:#8a6a2a; background:#fdf1d8; border:1px solid #e8d2a4; border-radius:8px; padding:7px 9px;}
+  .sheetBg{position:fixed; inset:0; z-index:2100; background:rgba(52,40,30,.5); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; padding:16px;}
+  .sheetBg.hidden{display:none;}
+  .sheet{width:100%; max-width:400px; max-height:82dvh; overflow-y:auto; background:#fffaf3; border:1px solid #eadbc7; border-radius:18px; padding:16px 16px 14px; box-shadow:0 24px 60px rgba(52,40,30,.3);}
+  .sheetTop{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .sheetTop h2{margin:0; font-size:17px; color:#5a4a3d; letter-spacing:1px;}
+  .sheetClose{font-size:11px; padding:5px 11px; border:1px solid #d9c7b1; background:#fffaf3; color:#6b5b4c; border-radius:99px; cursor:pointer;}
+  .sheetSub{font-size:11px; color:#a08e7c; margin:6px 0 10px; line-height:1.6;}
+  .houseBlock{margin-bottom:12px; border-top:1px dashed #eadbc7; padding-top:10px;}
+  .houseBlock:first-of-type{border-top:none; padding-top:0;}
+  .houseHead{display:flex; justify-content:space-between; align-items:baseline; font-size:11px; color:#8c7f73; margin-bottom:6px;}
+  .houseHead b{font-size:12.5px; color:#5a4a3d;}
+  .doors{display:grid; grid-template-columns:repeat(4,1fr); gap:6px;}
+  .door{position:relative; border:1px solid #e6d9c8; border-radius:9px; padding:7px 3px 6px; text-align:center; background:#fdf6ec; opacity:.55;}
+  .door.on{opacity:1; background:#fff3dd; border-color:#e2c79a; box-shadow:inset 0 0 0 2px rgba(217,164,65,.14);}
+  .plate{display:block; font-size:11.5px; font-weight:700; color:#8c7f73; font-variant-numeric:tabular-nums;}
+  .door.on .plate{color:#a8694a;}
+  .rname{display:block; font-size:9px; color:#8c7f73; margin-top:2px;}
+  .keyDot{display:block; width:5px; height:5px; border-radius:50%; background:#e0d2bd; margin:5px auto 0;}
+  .door.on .keyDot{background:var(--gold); box-shadow:0 0 6px rgba(217,164,65,.6);}
+  .keyBar{display:flex; justify-content:space-between; font-size:11px; color:#6b5b4c; border-top:1px solid #eadbc7; margin-top:6px; padding-top:9px;}
+  .jItem{border-bottom:1px dashed #eadbc7; padding:9px 2px;}
+  .jItem:last-child{border-bottom:none;}
+  .jItem h4{margin:0 0 3px; font-size:12px; color:#5a4a3d;}
+  .jMeta{font-size:9.5px; color:#a08e7c; margin-bottom:4px;}
+  .jItem p{margin:0; font-size:11px; line-height:1.75; color:#6b5b4c;}
+  .jItem.locked{opacity:.42;}
+  .jItem.on{background:#fdf4e4; border-radius:8px; padding:9px 8px;}
+  footer button.ui{font-size:11px;}
+  /* M2-B3：提示高亮 / 道具面板 */
+  .item.hint{animation:hintPulse 1s ease-in-out infinite; box-shadow:0 0 0 3px rgba(217,164,65,.55), 0 0 18px rgba(217,164,65,.5);}
+  @keyframes hintPulse{0%,100%{transform:translate(-50%,-50%) rotate(var(--r,0deg)) scale(1);}50%{transform:translate(-50%,-50%) rotate(var(--r,0deg)) scale(1.12);}}
+  .propRow{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 2px; border-bottom:1px dashed #eadbc7; font-size:11.5px; color:#6b5b4c;}
+  .propRow:last-child{border-bottom:none;}
+  .propRow .pv{font-size:10px; color:#a08e7c; margin-top:2px;}
+  .propBtn{font-size:11px; padding:5px 10px; border-radius:99px; border:1px solid #d9c7b1; background:#fffaf3; color:#6b5b4c; cursor:pointer; white-space:nowrap; flex:0 0 auto;}
+  .propBtn.on{background:#fdf1d8; border-color:#e2c79a; color:#8a5a3c;}
+  .propBtn:disabled{opacity:.42; cursor:not-allowed;}
+  .packGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:8px;}
+  .packCard{border:1px solid #e6d9c8; border-radius:10px; padding:8px 6px; text-align:center; background:#fdf6ec; font-size:10.5px; color:#8c7f73; cursor:pointer;}
+  .packCard b{display:block; font-size:11.5px; color:#5a4a3d; margin-bottom:3px;}
+  .packCard.locked{opacity:.5; cursor:not-allowed;}
+  .packCard.on{border-color:#e2c79a; background:#fff3dd; box-shadow:inset 0 0 0 2px rgba(217,164,65,.16); color:#8a5a3c;}
+  @media (max-width:420px){
+    #app{padding:8px 8px 14px;}
+    #room{height:44vh; min-height:290px;}
+    .brand{font-size:16px;}
+    .hudChip{font-size:10px;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brandRow">
+      <div class="brand">归位<span>收纳屋 · M2 垂直切片</span></div>
+      <div class="roomTag" id="roomTag">LJ-T-003</div>
+    </div>
+    <div class="hud">
+      <div class="hudChip"><span>房间</span><b id="hudLvl">1/12</b></div>
+      <div class="hudChip"><span>时间</span><b id="hudTime">100</b></div>
+      <div class="hudChip"><span>分数</span><b id="hudScore">0</b></div>
+      <div class="hudChip"><span>连击</span><b id="hudCombo">x1</b></div>
+    </div>
+    <div class="cleanTrack"><i id="cleanBar"></i></div>
+  </header>
+
+  <main id="roomWrap">
+    <div id="room">
+      <div class="window"></div>
+      <div class="shelf"></div>
+      <div class="rug"></div>
+      <div id="roomLabel">客厅 · 第 1 间</div>
+      <div id="restoreLayer"></div>
+      <div id="items"></div>
+      <div id="bubble"></div>
+    </div>
+    <div id="storyBar"><span class="ico"></span><span id="storyText">第 1 天 · 客厅。纸箱还没拆，先把地上的东西一件件归位。</span></div>
+  </main>
+
+  <section>
+    <div class="trayRow" id="boxes"></div>
+    <div class="slotTag"><span>临时槽位 · 放不进当前箱子的先存这里</span><b id="slotCount">0/5</b></div>
+    <div class="trayRow" id="slots"></div>
+  </section>
+
+  <footer>
+    <button class="ui" id="btnRestart" title="重开本间（R）">重开本间</button>
+    <button class="ui" id="btnProps" title="道具 / 商店（P）">道具</button>
+    <button class="ui" id="btnDiary" title="搬家日记（N）">日记</button>
+    <button class="ui" id="btnBld" title="门牌墙（B）">门牌墙</button>
+    <button class="ui" id="btnLog" title="埋点日志（L）">埋点</button>
+  </footer>
+
+  <div id="perf">性能：采集中…</div>
+  <div id="logPanel">
+    <div class="logHead"><span id="logTitle">埋点日志 · vB4.0</span><span id="logCount">0 条</span><button id="copyLog">复制JSON</button><button id="clearLog">清空</button></div>
+    <div id="logBody"></div>
+  </div>
+</div>
+
+<div class="modalBg hidden" id="modalBg">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div class="sheetBg hidden" id="sheetBg">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const room = $('room'), itemsEl = $('items'), boxesEl = $('boxes'), slotsEl = $('slots'), restoreLayer = $('restoreLayer');
+
+// ---------- 品类与关卡 ----------
+const CATS = {
+  toy:      {name:'玩具', icon:'🧸', color:'#e8a0a8', items:['🧸','🪀','🎲','🪁','🧩']},
+  book:     {name:'书籍', icon:'📚', color:'#a8c0e8', items:['📚','📖','📕','📗','📘']},
+  daily:    {name:'日用', icon:'🧴', color:'#9fcdb4', items:['🧴','🧼','🧻','🪥','🪒']},
+  kitchen:  {name:'厨房', icon:'🍽️', color:'#e8c898', items:['🍽️','🥄','🍵','🫖','🥣']},
+  stationery:{name:'文具',icon:'✏️', color:'#c8b0e8', items:['✏️','🖊️','📎','📐','🗂️']},
+  digital:  {name:'数码', icon:'🎧', color:'#90c8d8', items:['🎧','🎮','📱','💾','🔌']},
+  cloth:    {name:'衣物', icon:'👕', color:'#e8b8a0', items:['👕','🧦','🧣','👖','🧤']},
+  memory:   {name:'纪念', icon:'📷', color:'#d8b8d8', items:['📷','🎞️','💌','🏅','🪙']},
+};
+
+// M2-B4：40 枚物品线稿图标（24×24，currentColor 描边），替代 emoji 占位
+const ITEM_ICONS = {
+  '🧸':'<circle cx="12" cy="13" r="6"/><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="7" r="2.2"/><path d="M12 13v2"/><path d="M9.5 11.5h.01M14.5 11.5h.01"/>',
+  '🪀':'<circle cx="12" cy="9.5" r="4.2"/><path d="M12 13.7V17"/><circle cx="12" cy="19.2" r="1.8"/>',
+  '🎲':'<rect x="5" y="5" width="14" height="14" rx="3"/><circle cx="9" cy="9" r=".9" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/>',
+  '🪁':'<path d="M12 3l7 7-7 7-7-7z"/><path d="M12 17c0 2.6 3.4 2.6 3.4 4.4"/><path d="M12 3v14"/>',
+  '🧩':'<path d="M6 6h4.6a2 2 0 1 1 3.8 0H18v4.6a2 2 0 1 0 0 3.8V18h-4.6a2 2 0 1 1-3.8 0H6v-4.6a2 2 0 1 0 0-3.8z"/>',
+  '📚':'<path d="M5 6h11v3H5zM6 10h11v3H6zM7 14h11v3H7z"/>',
+  '📖':'<path d="M12 7c-2-1.4-5-1.6-7-1.2V17c2-.4 5-.2 7 1.2 2-1.4 5-1.6 7-1.2V5.8c-2-.4-5-.2-7 1.2z"/><path d="M12 7v11"/>',
+  '📕':'<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9.4 4v16"/><path d="M12 9h3.6"/>',
+  '📗':'<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/>',
+  '📘':'<rect x="5" y="5" width="14" height="14" rx="2"/><path d="M5 9.5h14"/><path d="M10 5v14"/>',
+  '🧴':'<path d="M10 3h4v3l2 3v11H8V9l2-3z"/><path d="M9.6 12.5h4.8"/>',
+  '🧼':'<rect x="4.5" y="9" width="14" height="8" rx="3.4"/><circle cx="17.4" cy="6.4" r="1.1"/><circle cx="19.4" cy="9.4" r=".8"/>',
+  '🧻':'<rect x="8" y="6" width="8" height="12" rx="1.6"/><circle cx="12" cy="8.6" r="2.4"/><path d="M16 12h4"/>',
+  '🪥':'<path d="M6.5 19.5L16 8"/><path d="M16 8l2.4-2.6 2.2 2-2.4 2.6z"/>',
+  '🪒':'<path d="M6 11h9v3.4H6z"/><path d="M15 12.6h4"/><path d="M8 11V8.6"/>',
+  '🍽️':'<circle cx="9.2" cy="12" r="4.4"/><path d="M16.2 4v16M14 4v4.4a2.2 2.2 0 0 0 4.4 0V4"/>',
+  '🥄':'<ellipse cx="12" cy="8" rx="3.1" ry="4.2"/><path d="M12 12.2V20"/>',
+  '🍵':'<path d="M5.5 8.5h10v5.6a5 5 0 0 1-10 0z"/><path d="M15.5 10h2.2a2.2 2.2 0 0 1 0 4.4h-2.2"/><path d="M8.4 4.6c.8 1-.8 1.8 0 2.8M11.6 4.6c.8 1-.8 1.8 0 2.8"/>',
+  '🫖':'<path d="M6 10h9v4a4.5 4.5 0 0 1-9 0z"/><path d="M15 11.4l3.4-1.8v5.2L15 13.2"/><path d="M8.4 10V8.4h4.2V10"/><path d="M10.5 6.2h.01"/>',
+  '🥣':'<path d="M3.6 11h16.8a8.4 8.4 0 0 1-16.8 0z"/><path d="M8 19h8"/>',
+  '✏️':'<path d="M4.8 19.2l2-5L16 5l3 3-9.2 9.2-5 2z"/><path d="M14.2 6.8l3 3"/><path d="M6.8 14.2l3 3"/>',
+  '🖊️':'<path d="M4.8 19.2l1.6-4.6L15.6 5.4l3 3-9.2 9.2-4.6 1.6z"/><path d="M13.8 7.2l3 3"/><path d="M6.4 14.6l3 3"/>',
+  '📎':'<path d="M15.4 6v8.4a4 4 0 0 1-8 0V7.2a2.4 2.4 0 0 1 4.8 0v7.4a.9.9 0 0 1-1.8 0V8"/>',
+  '📐':'<path d="M4 19.5h16L4 6.5z"/><path d="M7.6 16.4h5.2"/>',
+  '🗂️':'<path d="M4 7h6l2 2h8v9.5H4z"/><path d="M8 4.5h4l2 2"/>',
+  '🎧':'<path d="M5 13a7 7 0 0 1 14 0"/><rect x="3.6" y="12.4" width="3.4" height="6" rx="1.6"/><rect x="17" y="12.4" width="3.4" height="6" rx="1.6"/>',
+  '🎮':'<rect x="3" y="8.6" width="18" height="8.4" rx="4"/><path d="M8 11v3.2M6.4 12.6h3.2"/><circle cx="16.4" cy="11.8" r=".9" fill="currentColor" stroke="none"/><circle cx="18.4" cy="13.8" r=".9" fill="currentColor" stroke="none"/>',
+  '📱':'<rect x="7.4" y="3" width="9.2" height="18" rx="2.2"/><path d="M11 18.2h2"/>',
+  '💾':'<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="4" width="6.4" height="5"/><rect x="8.6" y="13" width="6.8" height="5"/>',
+  '🔌':'<path d="M8.4 3v4.6M15.6 3v4.6"/><path d="M6.4 7.6h11.2v3a5.6 5.6 0 0 1-11.2 0z"/><path d="M12 16.2V21"/>',
+  '👕':'<path d="M8.6 4l3.4 1.8L15.4 4l4 3.6-2.8 3V20H7.4V10.6l-2.8-3z"/>',
+  '🧦':'<path d="M9 3.4h5v10.2a4.2 4.2 0 0 1-8.4 0V9"/>',
+  '🧣':'<path d="M7 4c0 6 10 6 10 0"/><path d="M8.6 9.6V20M15.4 9.6V20"/><path d="M8.6 20l1.4-2 1.4 2M15.4 20l-1.4-2-1.4 2"/>',
+  '👖':'<path d="M7 3.4h10l-1 17h-3.8L11 12l-1.2 8.4H6z"/>',
+  '🧤':'<path d="M7.4 12.6V7.8a1.8 1.8 0 0 1 3.6 0V11"/><path d="M11 11V5.8a1.8 1.8 0 0 1 3.6 0V11"/><path d="M14.6 11V8.2a1.8 1.8 0 0 1 3.6 0v6.2a5.4 5.4 0 0 1-10.8 0v-2"/>',
+  '📷':'<rect x="3" y="7" width="18" height="12" rx="2.4"/><circle cx="12" cy="13" r="3.6"/><path d="M9 7l1.4-2.2h3.2L15 7"/>',
+  '🎞️':'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 8.6h16M4 15.4h16"/><rect x="5.4" y="5.4" width="2" height="2"/><rect x="5.4" y="10.4" width="2" height="2"/><rect x="5.4" y="17" width="2" height="2"/><rect x="16.6" y="5.4" width="2" height="2"/><rect x="16.6" y="10.4" width="2" height="2"/><rect x="16.6" y="17" width="2" height="2"/>',
+  '💌':'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3.6 7.2L12 13.6l8.4-6.4"/>',
+  '🏅':'<circle cx="12" cy="9" r="4.2"/><path d="M9.4 12.4L7.4 20.4l4.6-2.6 4.6 2.6-2-8"/>',
+  '🪙':'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3.8"/>',
+};
+function ico(e){ const p=ITEM_ICONS[e]; return p?`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`:e; }
+
+const THEMES = {
+  t1:{name:'老城公寓'},
+  t2:{name:'新婚小家'},
+  t3:{name:'告别老宅'},
+};
+
+const LEVELS = [
+  {name:'客厅', owner:'林阿姨家', theme:'t1', time:100, count:4, cats:['toy','book','daily','kitchen'],
+   storyStart:'第 1 天 · 客厅。纸箱还没拆，先把地上的东西一件件归位。',
+   storyEnd:'把最后一只杯子放回柜子，客厅安静下来。林阿姨说，这房子她住了三十年。'},
+  {name:'书房', owner:'阿哲的出租屋', theme:'t1', time:110, count:5, cats:['book','stationery','digital','daily'],
+   storyStart:'第 2 天 · 书房。上一个租客走得很急，抽屉里还留着一叠没寄出的信。',
+   storyEnd:'书桌终于露出木纹。那叠信的收件人，是阿哲自己。'},
+  {name:'卧室', owner:'要搬走的夫妻', theme:'t1', time:120, count:5, cats:['cloth','toy','memory','daily'],
+   storyStart:'第 3 天 · 卧室。衣柜空了一半，另一半还挂着两个人的衣服。',
+   storyEnd:'最后一只箱子合上。他们没有说话，但把结婚照留在了床头。'},
+  {name:'厨房', owner:'楼下小夫妻', theme:'t1', time:120, count:5, cats:['kitchen','daily','stationery','digital'],
+   storyStart:'第 4 天 · 厨房。灶台上还温着一锅汤，主人却已经搬去了另一个城市。',
+   storyEnd:'调味罐排成一列。最旧的那罐盐，标签上是两个人的笔迹。'},
+  {name:'婴儿房', owner:'小满家', theme:'t2', time:120, count:5, cats:['toy','cloth','memory','daily'],
+   storyStart:'第 5 天 · 婴儿房。摇篮空着，墙上还贴着一张没来得及填名字的身高尺。',
+   storyEnd:'你把最后一辆小木车放回架上。门后传来一声很轻的、像梦一样的笑。'},
+  {name:'衣帽间', owner:'小满家', theme:'t2', time:130, count:6, cats:['cloth','daily','memory','stationery'],
+   storyStart:'第 6 天 · 衣帽间。两排衣服中间空出一条缝，像有人刚从这里走出去。',
+   storyEnd:'婚纱被重新挂好。口袋里掉出一张车票，终点是这座城。'},
+  {name:'阳台', owner:'小满家', theme:'t2', time:130, count:6, cats:['daily','kitchen','toy','stationery'],
+   storyStart:'第 7 天 · 阳台。晾衣杆上还夹着一只小袜子，风一吹就晃。',
+   storyEnd:'花盆下的水迹干了。你收起那只袜子，放进装着纪念物的小盒。'},
+  {name:'餐厨', owner:'小满家', theme:'t2', time:140, count:4, cats:['kitchen','daily','book','stationery','digital'],
+   storyStart:'第 8 天 · 餐厨。桌上摆着三副碗筷，这个家一直只住了两个人。',
+   storyEnd:'你把第三副碗筷收进柜子最上层。有些位置，留着比用着重要。'},
+  {name:'阁楼', owner:'顶楼老太太', theme:'t3', time:145, count:6, cats:['memory','book','toy','cloth'],
+   storyStart:'第 9 天 · 阁楼。灰尘里全是旧年份，最上面那只箱子上写着「不要扔」。',
+   storyEnd:'箱子打开了，里面是一整套婴儿衣服和一封没寄出的信。'},
+  {name:'储物间', owner:'顶楼老太太', theme:'t3', time:150, count:6, cats:['daily','kitchen','digital','stationery'],
+   storyStart:'第 10 天 · 储物间。旧家电排成一排，每一台都还能转。',
+   storyEnd:'你把最后一台收音机接上电，它响了半句很多年前的天气预报。'},
+  {name:'老人房', owner:'顶楼老太太', theme:'t3', time:155, count:5, cats:['memory','cloth','book','daily','stationery'],
+   storyStart:'第 11 天 · 老人房。床头柜上摆着一副老花镜，镜腿用胶布缠过。',
+   storyEnd:'你把老花镜放回原处。窗外的树影，正好落在她常坐的那把椅子上。'},
+  {name:'门厅', owner:'顶楼老太太', theme:'t3', time:160, count:5, cats:['daily','cloth','book','kitchen','memory'],
+   storyStart:'第 12 天 · 门厅。整栋楼的钥匙都挂在这面墙上，只剩一把没有标签。',
+   storyEnd:'你把最后一把钥匙放回前台。楼道的灯，一盏一盏亮了起来。'},
+];
+
+const SLOT_BASE = 5;
+
+// M2-B2：12 段搬家日记（每间房一页，按整理顺序解锁）
+const DIARIES = [
+  {day:'第 1 天', title:'最后一杯茶', body:'林阿姨坚持要我把杯子留在柜子里，说这样房子才像有人住过。她锁门时没有回头，只把钥匙压在门口的脚垫下。', sign:'林阿姨'},
+  {day:'第 2 天', title:'没寄出的信', body:'信一共七封，收件人都是阿哲自己。最早的一封写于三年前，最后一封只有一句：这次真的走了。', sign:'阿哲'},
+  {day:'第 3 天', title:'床头的合照', body:'衣柜空了，床头却留下合照。男主人说那是忘了，女主人说那是故意。我没有问是哪一个。', sign:'搬家的夫妻'},
+  {day:'第 4 天', title:'还温着的汤', body:'灶上的汤已经凉了，锅盖边缘却还有一圈水汽。汤里是两个人的量，只盛过一碗。', sign:'楼下的小夫妻'},
+  {day:'第 5 天', title:'没写名字的身高尺', body:'身高尺贴到一米一就停了，下面的刻度被反复描过。小满说，孩子长得太快，来不及量。', sign:'小满'},
+  {day:'第 6 天', title:'口袋里的车票', body:'婚纱口袋里有一张回程车票，日期是婚礼第二天。她把它重新挂回原位，像挂回一个没做完的梦。', sign:'小满'},
+  {day:'第 7 天', title:'风里的小袜子', body:'那只袜子夹了整整一年。收起来的时候，阳台忽然安静了，连风都像在等一个答复。', sign:'小满'},
+  {day:'第 8 天', title:'第三副碗筷', body:'这个家一直只住两个人，餐具却是三副。第三副收进柜子最上层，她说过年再用。', sign:'小满'},
+  {day:'第 9 天', title:'不要扔', body:'箱子上写着「不要扔」三个字，笔画很用力。里面有整套婴儿衣服，和一封没寄出的信，收件人是她早逝的女儿。', sign:'顶楼老太太'},
+  {day:'第 10 天', title:'还能转的收音机', body:'每一台旧家电都还能用。她说留着，万一哪天想听点从前的声音。', sign:'顶楼老太太'},
+  {day:'第 11 天', title:'胶布缠过的镜腿', body:'老花镜的镜腿用胶布缠了四层。她说新的戴着不习惯，旧的有她的度数。', sign:'顶楼老太太'},
+  {day:'第 12 天', title:'没有标签的钥匙', body:'整栋楼的钥匙都挂在这面墙上，只有一把没有标签。我把最后一把放回前台，楼道的灯一盏一盏亮起来。', sign:'整栋楼'},
+];
+
+// M2-B2：每间房复原后的陈设（[类型, left%, top%, width%, height%]）
+const FURN_CLASS = {sofa:'f-sofa', bed:'f-bed', desk:'f-desk', shelf:'f-shelf', wardrobe:'f-wardrobe',
+  table:'f-table', crib:'f-crib', clock:'f-clock', plant:'f-plant', lamp:'f-lamp', rug:'f-rug', frame:'f-frame', box:'f-box'};
+const RESTORE = [
+  [['rug',16,79,52,13],['sofa',14,64,38,14],['shelf',64,42,26,5],['clock',76,20,9,9],['plant',86,58,11,17]],
+  [['desk',22,62,42,8],['shelf',58,27,30,5],['lamp',68,50,9,13],['frame',22,21,12,11],['rug',30,84,44,10]],
+  [['bed',14,58,46,18],['wardrobe',68,34,22,30],['rug',24,85,44,10],['lamp',60,52,8,13],['frame',40,16,12,11]],
+  [['table',28,62,34,8],['shelf',62,30,28,5],['plant',86,64,10,16],['lamp',16,38,9,13]],
+  [['crib',22,60,34,15],['shelf',64,31,26,5],['rug',26,85,42,10],['lamp',82,54,8,13],['frame',42,17,12,11]],
+  [['wardrobe',18,40,26,34],['wardrobe',52,40,26,34],['rug',28,86,44,9],['frame',82,25,11,10]],
+  [['plant',14,52,12,22],['plant',30,58,10,18],['table',56,62,26,7],['rug',40,86,44,9]],
+  [['table',30,62,36,8],['shelf',64,29,28,5],['lamp',16,40,9,13],['plant',86,62,10,16]],
+  [['box',16,64,14,12],['box',32,67,12,10],['rug',42,86,46,9],['lamp',72,44,8,13],['frame',58,20,12,11]],
+  [['shelf',14,35,32,5],['box',24,64,15,13],['table',58,62,26,7],['clock',84,24,8,8]],
+  [['bed',14,60,44,17],['clock',70,26,8,8],['lamp',80,54,8,13],['frame',40,18,12,11],['rug',22,85,44,10]],
+  [['table',28,62,30,7],['frame',52,22,13,11],['plant',78,58,11,18],['lamp',14,40,8,13],['rug',34,86,42,9]],
+];
+
+// ---------- 状态 ----------
+const G = {
+  run:'', runScore:0, levelIdx:0, state:'idle', time:0, levelScore:0,
+  combo:1, lastDep:0, items:[], boxes:[], pending:[], slots:[], maxSlots:SLOT_BASE,
+  adSlot:false, adTime:false, adHint:false, adBox:false, restored:false, adSeq:0,
+  boxSlots:3, hintT:0, noAds:false, pack:null,
+  cleared:[],
+};
+
+// M2-B3：商业化配置（零现金，全部本地模拟）
+const NOADS_KEY='lj_t003_noads_v1';
+const PACK_KEY='lj_t003_pack_v1';
+const PACKS=[
+  {id:'t1', need:0, name:'老城公寓', desc:'免费主题包 · 默认'},
+  {id:'t2', need:4, name:'新婚小家', desc:'钥匙 ≥ 4 解锁'},
+  {id:'t3', need:8, name:'告别老宅', desc:'钥匙 ≥ 8 解锁'},
+];
+function loadAds(){
+  try{ G.noAds=localStorage.getItem(NOADS_KEY)==='1'; }catch(e){ G.noAds=false; }
+  try{ G.pack=localStorage.getItem(PACK_KEY)||null; }catch(e){ G.pack=null; }
+}
+function saveAds(){
+  try{ localStorage.setItem(NOADS_KEY, G.noAds?'1':'0'); }catch(e){}
+  try{ localStorage.setItem(PACK_KEY, G.pack||''); }catch(e){}
+}
+function packUnlocked(id){ const p=PACKS.find(x=>x.id===id); return !!p && G.cleared.length>=p.need; }
+
+// M2-B2：整栋楼元进度（门牌 / 钥匙），跨局保留
+const PROGRESS_KEY='lj_t003_progress_v1';
+const HOUSE_KEYS=['t1','t2','t3'];
+function loadProgress(){
+  G.cleared=[];
+  try{
+    const p=JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null');
+    if(p && Array.isArray(p.cleared)) G.cleared=p.cleared.filter(n=>Number.isInteger(n)&&n>=0&&n<LEVELS.length);
+  }catch(e){ G.cleared=[]; }
+}
+function saveProgress(){
+  try{ localStorage.setItem(PROGRESS_KEY, JSON.stringify({cleared:G.cleared, updated:Date.now()})); }catch(e){}
+}
+function themeLevels(t){ return LEVELS.map((l,i)=>l.theme===t?i:-1).filter(i=>i>=0); }
+
+// ---------- 埋点 ----------
+const LOG_KEY='lj_t003_telemetry_v1';
+const SessionLog=(()=>{
+  let all=[];
+  try{ all=JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ all=[]; }
+  const save=()=>{ try{ localStorage.setItem(LOG_KEY, JSON.stringify(all.slice(-500))); }catch(e){} };
+  const count=()=>{ const el=$('logCount'); if(el) el.textContent=all.length+' 条'; };
+  function line(rec){
+    const body=$('logBody'); if(!body) return;
+    const div=document.createElement('div'); div.className='ev';
+    div.innerHTML=`<b>[${rec.ts} ${rec.run}]</b> ${rec.evt} <span class="d">${JSON.stringify(rec.data)}</span>`;
+    body.appendChild(div);
+    while(body.children.length>200) body.removeChild(body.firstChild);
+    body.scrollTop=body.scrollHeight;
+  }
+  function push(rec){ all.push(rec); if(all.length>500) all.shift(); save(); line(rec); count(); }
+  function renderAll(){ const b=$('logBody'); if(b) b.innerHTML=''; all.forEach(line); count(); }
+  function copy(){
+    const json=JSON.stringify(all,null,1);
+    const ok=()=>{ const t=$('logTitle'); if(t){ const old=t.textContent; t.textContent='已复制 '+all.length+' 条埋点'; setTimeout(()=>t.textContent=old,1500); } };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(json).then(ok).catch(fallback); }
+    else fallback();
+    function fallback(){
+      const ta=document.createElement('textarea'); ta.value=json; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); ok(); }catch(e){ window.prompt('复制埋点 JSON：', json); }
+      ta.remove();
+    }
+  }
+  function clear(){ all=[]; save(); const b=$('logBody'); if(b) b.innerHTML=''; count(); }
+  return {push, renderAll, copy, clear};
+})();
+function nowHMS(){ const d=new Date(); return d.toTimeString().slice(0,8); }
+function log(evt, data){
+  const rec={ts:nowHMS(), run:G.run||'-', gt:+G.time.toFixed(1), evt, data};
+  console.log('[埋点]', rec.run, evt, data);
+  SessionLog.push(rec);
+}
+
+// ---------- 性能 ----------
+const Perf={
+  total:0, frames:0, acc:0, fps:0, minFps:999, sumMs:0, maxMs:0, slow:0, uiT:0,
+  tick(dt, entities){
+    const ms=dt*1000; this.total++; this.frames++; this.acc+=dt; this.sumMs+=ms;
+    if(ms>this.maxMs) this.maxMs=ms;
+    if(ms>50) this.slow++;
+    if(this.acc>=1){ this.fps=Math.round(this.frames/this.acc); if(this.fps<this.minFps) this.minFps=this.fps; this.frames=0; this.acc=0; }
+    this.uiT+=dt;
+    if(this.uiT>=0.5){
+      this.uiT=0;
+      const heap=performance.memory?Math.round(performance.memory.usedJSHeapSize/1048576)+'MB':'-';
+      $('perf').textContent=`FPS ${this.fps||'-'} | 平均帧 ${(this.sumMs/this.total).toFixed(1)}ms | 最大帧 ${this.maxMs.toFixed(0)}ms | 慢帧(>50ms) ${this.slow} | 实体 ${entities} | JS堆 ${heap}`;
+    }
+  },
+  summary(){
+    return {avgFps:+(this.total/(this.sumMs/1000)).toFixed(1), minFps:this.minFps===999?null:this.minFps,
+      avgMs:+(this.sumMs/this.total).toFixed(1), maxMs:+this.maxMs.toFixed(1), slow:this.slow, samples:this.total};
+  }
+};
+
+// ---------- 音效 ----------
+let AC=null;
+function ensureAudio(){
+  if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ AC=null; } }
+  if(AC && AC.state==='suspended') AC.resume();
+}
+function tone(freq, dur=.08, type='sine', vol=.05, delay=0){
+  if(!AC) return;
+  const t=AC.currentTime+delay, o=AC.createOscillator(), g=AC.createGain();
+  o.type=type; o.frequency.value=freq; g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t+dur+.02);
+}
+function sfxSnap(combo){ const f=[523,587,659,784,880][Math.min(4,combo-1)]; tone(f,.07,'triangle',.06); tone(f*2,.04,'sine',.02,.02); }
+function sfxSlot(){ tone(220,.07,'sine',.04); }
+function sfxWin(){ [523,659,784,1047].forEach((f,i)=>tone(f,.14,'triangle',.05,i*.09)); }
+function sfxFail(){ tone(180,.18,'sawtooth',.045); tone(140,.22,'sawtooth',.035,.12); }
+
+// ---------- 生成关卡 ----------
+function makeBox(cat, target){ return {cat, count:0, target, done:false}; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+const SPOTS=[[18,24],[44,19],[70,25],[24,51],[50,47],[77,52],[36,74],[64,72]];
+function layoutItems(){
+  const n=G.items.length;
+  const piles=Math.min(SPOTS.length, Math.max(4, Math.round(n/3.6)));
+  const spots=shuffle(SPOTS.slice()).slice(0,piles);
+  shuffle(G.items);
+  // 暂时没有箱子的类别先垫底，能装箱的类别放上层，避免开局就被压在下面
+  const active=new Set(G.boxes.map(b=>b.cat));
+  const ordered=G.items.slice().sort((a,b)=>(active.has(a.cat)?1:0)-(active.has(b.cat)?1:0));
+  ordered.forEach((it,i)=>{
+    const p=i%piles, layer=Math.floor(i/piles);
+    const s=spots[p];
+    it.x=Math.max(8,Math.min(84, s[0] + (layer%2?2.4:-2.4) + (Math.random()*3-1.5)));
+    it.y=Math.max(12,Math.min(80, s[1] + layer*2.4 + (Math.random()*3-1.5)));
+    it.z=p*30+layer+1;
+    it.rot=(Math.random()*14-7).toFixed(1);
+  });
+}
+
+function startLevel(idx){
+  const L=LEVELS[idx];
+  G.levelIdx=idx; G.state='play'; G.time=L.time; G.levelScore=0; G.combo=1; G.lastDep=0;
+  G.items=[]; G.boxes=[]; G.pending=[]; G.slots=[]; G.maxSlots=SLOT_BASE+(L.cats.length>=5?1:0)+(L.count>=6?1:0); G.adSlot=false; G.adTime=false;
+  G.adHint=false; G.adBox=false; G.boxSlots=3; G.hintT=0;
+  G.adSeq++;
+  let uid=0;
+  L.cats.forEach(cat=>{
+    for(let i=0;i<L.count;i++){
+      const variants=CATS[cat].items;
+      G.items.push({uid:uid++, cat, emoji:variants[i%variants.length], x:0,y:0,z:0,rot:0,removed:false,blocked:false,el:null});
+    }
+  });
+  const allBoxes=L.cats.map(cat=>makeBox(cat,L.count));
+  G.boxes=allBoxes.slice(0,G.boxSlots); G.pending=allBoxes.slice(G.boxSlots);
+  layoutItems();
+  room.classList.remove('restored');
+  restoreLayer.innerHTML='';
+  const skin=G.pack||L.theme;
+  room.dataset.theme=skin;
+  $('roomTag').textContent=THEMES[skin].name+(G.pack&&G.pack!==L.theme?' · 主题包':'');
+  $('roomLabel').textContent=`${L.name} · ${L.owner}`;
+  updateStory(L.storyStart);
+  renderRoom(); renderBoxes(); renderSlots(); updateHUD();
+  log('level_start',{level:idx+1, room:L.name, owner:L.owner, theme:L.theme, skin, items:G.items.length, cats:L.cats, target:L.count, time:L.time, maxSlots:G.maxSlots, boxSlots:G.boxSlots});
+}
+
+// ---------- 渲染 ----------
+function renderRoom(){
+  itemsEl.innerHTML='';
+  G.items.forEach(it=>{
+    if(it.removed) return;
+    const b=document.createElement('button');
+    b.className='item'; b.type='button';
+    b.style.left=it.x+'%'; b.style.top=it.y+'%'; b.style.zIndex=it.z;
+    b.style.setProperty('--r', it.rot+'deg');
+    b.innerHTML=`<span class="ie">${ico(it.emoji)}</span><span class="il">${CATS[it.cat].name}</span>`;
+    b.setAttribute('aria-label', CATS[it.cat].name+'物品');
+    b.addEventListener('click', ()=>clickItem(it.uid));
+    it.el=b; itemsEl.appendChild(b);
+  });
+  requestAnimationFrame(updateBlocked);
+}
+
+function updateBlocked(){
+  const alive=G.items.filter(i=>!i.removed && i.el);
+  alive.forEach(it=>{
+    const r=it.el.getBoundingClientRect();
+    let blocked=false;
+    for(const o of alive){
+      if(o===it || o.z<=it.z) continue;
+      const q=o.el.getBoundingClientRect();
+      const ox=Math.max(0, Math.min(r.right,q.right)-Math.max(r.left,q.left));
+      const oy=Math.max(0, Math.min(r.bottom,q.bottom)-Math.max(r.top,q.top));
+      if(ox*oy > r.width*r.height*0.16){ blocked=true; break; }
+    }
+    it.blocked=blocked;
+    it.el.classList.toggle('blocked', blocked);
+  });
+}
+
+function renderBoxes(){
+  boxesEl.innerHTML='';
+  G.boxes.forEach(b=>{
+    const c=CATS[b.cat];
+    const d=document.createElement('div');
+    d.className='box'+(b.done?' done':'');
+    d.style.borderColor=c.color+'88';
+    d.innerHTML=`<div class="boxTop"><span class="boxIcon" style="background:${c.color}"></span><span class="boxName">${c.name}</span><span class="boxCount">${b.count}/${b.target}</span></div>
+      <div class="dots">${Array.from({length:b.target},(_,i)=>`<i class="${i<b.count?'on':''}"></i>`).join('')}</div>`;
+    boxesEl.appendChild(d);
+  });
+}
+
+function renderSlots(){
+  slotsEl.innerHTML='';
+  for(let i=0;i<G.maxSlots;i++){
+    const s=G.slots[i];
+    const d=document.createElement('div');
+    d.className='slot'+(s?' filled':'');
+    d.innerHTML=s?`<span class="se">${ico(s.emoji)}</span><span class="sl">${CATS[s.cat].name}</span>`:'＋';
+    d.addEventListener('click', ()=>clickSlot(i));
+    slotsEl.appendChild(d);
+  }
+  $('slotCount').textContent=`${G.slots.length}/${G.maxSlots}`;
+}
+
+function updateHUD(){
+  $('hudLvl').textContent=(G.levelIdx+1)+'/'+LEVELS.length;
+  $('hudTime').textContent=Math.max(0,Math.ceil(G.time));
+  $('hudScore').textContent=G.runScore+G.levelScore;
+  $('hudCombo').textContent='x'+G.combo;
+  const total=G.items.length || 1;
+  const removed=G.items.filter(i=>i.removed).length;
+  $('cleanBar').style.width=Math.round(removed/total*100)+'%';
+}
+function updateStory(t){ $('storyText').textContent=t; }
+let bubbleT=0;
+function bubble(msg){
+  const b=$('bubble'); b.textContent=msg; b.classList.add('show');
+  clearTimeout(bubbleT); bubbleT=setTimeout(()=>b.classList.remove('show'),1700);
+}
+function shake(el){ if(!el) return; el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),380); }
+function shakeSlot(i){ const el=slotsEl.children[i]; if(el){ el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),320); } }
+
+function burst(el){
+  if(!el) return;
+  const r=el.getBoundingClientRect(), rr=room.getBoundingClientRect();
+  const x=r.left-rr.left+r.width/2, y=r.top-rr.top+r.height/2;
+  for(let i=0;i<8;i++){
+    const s=document.createElement('i');
+    s.className='spark';
+    s.style.left=x+'px'; s.style.top=y+'px';
+    s.style.background=i%2?'#e6b06a':'#d97b6c';
+    s.style.setProperty('--dx',(Math.random()*90-45)+'px');
+    s.style.setProperty('--dy',(Math.random()*-70-10)+'px');
+    room.appendChild(s);
+    setTimeout(()=>s.remove(),650);
+  }
+}
+
+// ---------- 交互 ----------
+function removeFromRoom(it){
+  it.removed=true;
+  if(it.el){ const el=it.el; el.classList.add('taken'); setTimeout(()=>el.remove(),250); }
+}
+
+function clickItem(uid){
+  if(G.state!=='play') return;
+  ensureAudio();
+  const it=G.items.find(i=>i.uid===uid); if(!it || it.removed) return;
+  if(it.blocked){ bubble('被压住了 · 先清理上面的东西'); shake(it.el); log('blocked_click',{cat:it.cat}); return; }
+  const box=G.boxes.find(b=>b.cat===it.cat && !b.done && b.count<b.target);
+  if(box){ deposit(it,box,'room'); }
+  else if(G.slots.length<G.maxSlots){ storeSlot(it); }
+  else { fail('slot_full'); }
+}
+
+function deposit(item, box, source){
+  const now=performance.now();
+  G.combo = (now-G.lastDep < 2600) ? Math.min(5,G.combo+1) : 1;
+  G.lastDep=now;
+  const gain=10*G.combo;
+  G.levelScore+=gain; box.count++;
+  burst(item.el || room);
+  sfxSnap(G.combo);
+  if(source==='room') removeFromRoom(item);
+  log('deposit',{cat:item.cat, to:box.cat, progress:box.count+'/'+box.target, gain, combo:G.combo, source});
+  renderBoxes(); renderSlots(); updateHUD(); updateBlocked();
+  if(box.count>=box.target) completeBox(box);
+  else bubble(`+${gain} · ${CATS[box.cat].name}箱 ${box.count}/${box.target}`);
+}
+
+function storeSlot(it){
+  G.slots.push({cat:it.cat, emoji:it.emoji});
+  removeFromRoom(it);
+  sfxSlot();
+  log('slot_store',{cat:it.cat, slots:G.slots.length+'/'+G.maxSlots});
+  renderSlots(); updateHUD(); updateBlocked();
+  if(G.slots.length>=G.maxSlots) bubble('槽位满了 · 下次只能拿能装箱的');
+  else bubble('放不进箱子 · 先存进临时槽');
+  checkLevelClear();
+}
+
+function clickSlot(i){
+  if(G.state!=='play') return;
+  const s=G.slots[i]; if(!s) return;
+  const box=G.boxes.find(b=>b.cat===s.cat && !b.done && b.count<b.target);
+  if(box){ G.slots.splice(i,1); deposit(s,box,'slot'); }
+  else { bubble(CATS[s.cat].name+'的箱子还没出现 · 先清理其他物品'); shakeSlot(i); log('slot_reject',{cat:s.cat}); }
+}
+
+function completeBox(box){
+  box.done=true;
+  G.levelScore+=50*G.combo;
+  sfxWin();
+  log('box_clear',{cat:box.cat, bonus:50*G.combo, levelScore:G.levelScore});
+  renderBoxes(); updateHUD();
+  setTimeout(()=>{
+    G.boxes=G.boxes.filter(b=>b!==box);
+    while(G.pending.length && G.boxes.length<G.boxSlots) G.boxes.push(G.pending.shift());
+    renderBoxes();
+    drainSlots();
+    checkLevelClear();
+  },430);
+}
+
+// 新箱子出现时，临时槽里同类物品自动归位（避免房间清空却卡在槽里）
+function drainSlots(){
+  if(!G.slots.length) return 0;
+  let moved=0;
+  for(let i=G.slots.length-1;i>=0;i--){
+    const s=G.slots[i];
+    const box=G.boxes.find(b=>b.cat===s.cat && !b.done && b.count<b.target);
+    if(box){ G.slots.splice(i,1); deposit(s,box,'slot_auto'); moved++; }
+  }
+  if(moved){
+    renderSlots(); updateHUD(); updateBlocked();
+    log('slot_auto',{moved, slots:G.slots.length+'/'+G.maxSlots});
+  }
+  return moved;
+}
+
+function checkLevelClear(){
+  if(G.state!=='play') return;
+  const allGone=G.items.every(i=>i.removed);
+  const noSlots=G.slots.length===0;
+  const boxesDone=G.boxes.every(b=>b.done) && G.pending.length===0;
+  if(allGone && noSlots && boxesDone){ levelClear(); return; }
+  if(allGone && G.slots.length>0){
+    const hasMatch=G.boxes.some(b=>!b.done && G.slots.some(s=>s.cat===b.cat));
+    if(!hasMatch && G.pending.length){
+      // 兜底：房间已空，直接放行下一只箱子，避免无处可点（箱位满了就等清箱回调再放）
+      if(G.boxes.length<G.boxSlots){ G.boxes.push(G.pending.shift()); renderBoxes(); drainSlots(); return; }
+      bubble('等这箱清完 · 下一只马上出来');
+      return;
+    }
+    bubble(hasMatch?'点下方临时槽 · 把存着的东西放进箱子':'等这箱装满 · 临时槽会自动归位');
+  }
+}
+
+// ---------- 结算 ----------
+function levelClear(){
+  if(G.state!=='play') return;
+  G.state='restore';
+  const idx=G.levelIdx, L=LEVELS[idx];
+  const ratio=G.time/L.time;
+  const stars=ratio>=.45?3:ratio>=.2?2:1;
+  const bonus=Math.round(G.time*2);
+  G.levelScore+=bonus; G.runScore+=G.levelScore;
+  const firstTime=!G.cleared.includes(idx);
+  if(firstTime){ G.cleared.push(idx); G.cleared.sort((a,b)=>a-b); saveProgress(); }
+  const houseLevels=themeLevels(L.theme);
+  const houseDone=firstTime && houseLevels.every(i=>G.cleared.includes(i));
+  updateStory(L.storyEnd); updateHUD();
+  sfxWin();
+  log('level_clear',{level:idx+1, room:L.name, stars, time:+G.time.toFixed(1), bonus, levelScore:G.levelScore, runScore:G.runScore, keys:G.cleared.length, firstTime, perf:Perf.summary()});
+  playRestore(idx, ()=>{
+    if(houseDone) log('house_complete',{theme:L.theme, house:THEMES[L.theme].name, keys:G.cleared.length});
+    G.state='clear';
+    showClearModal(idx, stars, bonus, houseDone);
+  });
+}
+
+// M2-B2：复原陈设逐件落位（画面差异可辨）
+function playRestore(idx, done){
+  const L=LEVELS[idx], pieces=RESTORE[idx]||[];
+  restoreLayer.innerHTML='';
+  pieces.forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='furn '+(FURN_CLASS[p[0]]||'');
+    d.style.left=p[1]+'%'; d.style.top=p[2]+'%'; d.style.width=p[3]+'%'; d.style.height=p[4]+'%';
+    d.style.transitionDelay=(i*90)+'ms';
+    restoreLayer.appendChild(d);
+  });
+  room.classList.add('restored');
+  bubble(`复原 · ${L.name}回到${L.owner}住着的样子`);
+  log('restore',{level:idx+1, room:L.name, theme:L.theme, pieces:pieces.length});
+  setTimeout(done, Math.max(900, 700+pieces.length*90));
+}
+
+function showClearModal(idx, stars, bonus, houseDone){
+  const L=LEVELS[idx], d=DIARIES[idx];
+  const last=idx>=LEVELS.length-1;
+  showModal(`
+    <h2>${last?'整栋楼都亮了':'第 '+(idx+1)+' 间 · 复原'}</h2>
+    <div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    <div class="diaryCard">
+      <div class="diaryHead"><span>搬家日记 ${String(idx+1).padStart(2,'0')} / 12 · ${d.day}</span><span>${L.owner}</span></div>
+      <b>${d.title}</b>
+      <p>${d.body}</p>
+      <div class="diarySign">—— ${d.sign}</div>
+    </div>
+    ${houseDone?`<div class="houseDone">${THEMES[L.theme].name} · 门牌全部点亮，获得整串钥匙</div>`:''}
+    <div class="statRow"><span>本间得分</span><b>${G.levelScore}</b></div>
+    <div class="statRow"><span>剩余时间奖励</span><b>+${bonus}</b></div>
+    <div class="statRow"><span>累计得分</span><b>${G.runScore}</b></div>
+    <div class="statRow"><span>钥匙 / 门牌</span><b>${G.cleared.length} / ${LEVELS.length}</b></div>
+    <div class="modalBtns"><button id="diaryBtn" class="ghost">搬家日记</button><button id="nextBtn">${last?'查看整理':'下一间房'}</button></div>
+  `);
+  $('diaryBtn').onclick=()=>openJournal(idx);
+  $('nextBtn').onclick=()=>{
+    hideModal();
+    if(last) endRun(); else startLevel(idx+1);
+  };
+}
+
+function endRun(){
+  G.state='idle';
+  log('session_end',{runScore:G.runScore, levels:LEVELS.length});
+  showModal(`
+    <h1>归位</h1>
+    <p class="sub">三户人家、十二间房，都整理完了。<br>你把最后一把钥匙放回前台。</p>
+    <div class="statRow"><span>本次整理</span><b>${LEVELS.length} 间房</b></div>
+    <div class="statRow"><span>总分</span><b>${G.runScore}</b></div>
+    <div class="modalBtns"><button id="againBtn">再整理一次</button></div>
+  `);
+  $('againBtn').onclick=()=>{ hideModal(); startRun(); };
+}
+
+function fail(reason){
+  if(G.state!=='play') return;
+  G.state='fail';
+  sfxFail();
+  log('level_fail',{reason, level:G.levelIdx+1, remaining:G.items.filter(i=>!i.removed).length, slots:G.slots.length+'/'+G.maxSlots, time:+G.time.toFixed(1)});
+  const canAd = reason==='timeout' ? !G.adTime : !G.adSlot;
+  log('ad_offer',{placements:[reason==='timeout'?'timeout':'slot'], reason, canAd, noAds:G.noAds, source:'fail'});
+  showModal(`
+    <h2>${reason==='timeout'?'时间到了':'槽位满了'}</h2>
+    <p>${reason==='timeout'?'这间房还差一点。再给你 20 秒，把最后几件归位。':'临时槽被塞满了。清出 2 个位置，还能继续。'}</p>
+    <div class="modalBtns">
+      ${canAd?`<button id="adBtn">${G.noAds?'直接领取':`看广告 ${reason==='timeout'?'+20 秒':'+2 槽位'}`}</button>`:''}
+      <button id="retryBtn" class="ghost">重试本间</button>
+    </div>
+  `);
+  $('retryBtn').onclick=()=>{ hideModal(); startLevel(G.levelIdx); };
+  if(canAd) $('adBtn').onclick=()=>playAd(reason);
+}
+
+function playAd(kind){
+  const seq=++G.adSeq;
+  G.adPrev=G.state;
+  G.state='ad';
+  log('ad_start',{placement:kind, noAds:G.noAds});
+  if(G.noAds){
+    // 已购去广告卡：不看片，直接发放
+    grant(kind,'noads');
+    log('ad_watched',{placement:kind, source:'noads'});
+    return;
+  }
+  showModal(`<h2>广告播放中…</h2><p class="sub">灰盒模拟 · 3 秒后自动发放</p><div class="adCount" id="adCount">3</div>`);
+  let n=3;
+  const t=setInterval(()=>{
+    if(G.adSeq!==seq){ clearInterval(t); return; }
+    n--;
+    if(n<=0){
+      clearInterval(t);
+      grant(kind,'ad');
+      log('ad_watched',{placement:kind, source:'ad'});
+    } else {
+      const el=$('adCount'); if(el) el.textContent=n;
+    }
+  },1000);
+}
+
+const AD_LABEL={timeout:'+20 秒', slot:'+2 槽位', hint:'提示', box:'+1 箱位'};
+function grant(kind, source){
+  if(kind==='timeout'){ G.adTime=true; G.time+=20; }
+  else if(kind==='slot'){ G.adSlot=true; G.maxSlots+=2; }
+  else if(kind==='hint'){ G.adHint=true; }
+  else if(kind==='box'){ G.adBox=true; G.boxSlots=4; }
+  // 从失败弹窗/广告态回来才恢复进行中；结算/复原态不改状态
+  const prev=G.adPrev;
+  G.state=(prev==='fail'||prev==='ad'||!prev)?'play':prev;
+  G.adPrev=null;
+  hideModal();
+  if(kind==='box'){ while(G.pending.length && G.boxes.length<G.boxSlots) G.boxes.push(G.pending.shift()); }
+  renderBoxes(); renderSlots(); updateHUD(); updateBlocked();
+  if(kind==='hint') showHint();
+  bubble('已发放 · '+AD_LABEL[kind]+' · 继续整理');
+  log('ad_reward',{placement:kind, source, maxSlots:G.maxSlots, boxSlots:G.boxSlots, time:+G.time.toFixed(1)});
+}
+
+// M2-B3：提示——高亮一件当前可装箱的物品，6 秒后自动消失
+function showHint(){
+  const cand=G.items.filter(i=>!i.removed && !i.blocked && i.el);
+  if(!cand.length){ bubble('房间里暂时没有可提示的物品'); log('hint_empty',{level:G.levelIdx+1}); return; }
+  const pick=cand.find(i=>G.boxes.some(b=>!b.done && b.cat===i.cat && b.count<b.target)) || cand[0];
+  pick.el.classList.add('hint');
+  clearTimeout(G.hintT);
+  G.hintT=setTimeout(()=>{ if(pick.el) pick.el.classList.remove('hint'); },6000);
+  log('hint_show',{cat:pick.cat, level:G.levelIdx+1});
+}
+
+// M2-B3：道具 / 商店（广告位、去广告卡、主题包）
+function openProps(){
+  const keys=G.cleared.length;
+  const offers=[];
+  if(!G.adHint) offers.push('hint');
+  if(!G.adBox) offers.push('box');
+  if(!G.adSlot) offers.push('slot');
+  if(!G.adTime) offers.push('timeout');
+  log('prop_open',{keys, noAds:G.noAds, pack:G.pack, offers});
+  log('ad_offer',{placements:offers, noAds:G.noAds, source:'props'});
+  const packs=PACKS.map(p=>{
+    const ok=packUnlocked(p.id);
+    const on=G.pack===p.id;
+    return `<div class="packCard${ok?'':' locked'}${on?' on':''}" data-pack="${p.id}">
+      <b>${p.name}</b>${ok?(on?'使用中':'已解锁'):p.desc}</div>`;
+  }).join('');
+  sheet(`<div class="sheetTop"><h2>道具 · 商店（灰盒）</h2><button class="sheetClose" id="sheetClose">关闭</button></div>
+    <p class="sheetSub">零现金原型：所有广告与内购均为本地模拟，解锁状态写入 localStorage。${G.noAds?'<br><b>去广告卡已生效</b>：奖励直接发放。':''}</p>
+    <div class="propRow"><div><b>提示</b><div class="pv">高亮一件可装箱物品 · 每关 1 次</div></div>
+      ${G.state!=='play'?'<button class="propBtn" disabled>整理中可用</button>'
+        :G.adHint?'<button class="propBtn" disabled>本关已用</button>'
+        :`<button class="propBtn${G.noAds?' on':''}" id="pHint">${G.noAds?'直接领取':'看广告'}</button>`}</div>
+    <div class="propRow"><div><b>扩箱</b><div class="pv">本关同时多出 1 只收纳箱 · 每关 1 次</div></div>
+      ${G.state!=='play'?'<button class="propBtn" disabled>整理中可用</button>'
+        :G.adBox?'<button class="propBtn" disabled>本关已用</button>'
+        :`<button class="propBtn${G.noAds?' on':''}" id="pBox">${G.noAds?'直接领取':'看广告'}</button>`}</div>
+    <div class="propRow"><div><b>扩槽 / 续时</b><div class="pv">失败时弹出 · 扩槽 +2、续时 +20 秒</div></div>
+      <button class="propBtn" disabled>失败时触发</button></div>
+    <div class="propRow"><div><b>去广告卡</b><div class="pv">模拟内购 · 一键切换购买状态</div></div>
+      <button class="propBtn${G.noAds?' on':''}" id="pNoAds">${G.noAds?'已购 · 点击退款':'模拟购买'}</button></div>
+    <div class="jItem"><h4>主题包</h4><div class="jMeta">按整栋楼钥匙数解锁 · 解锁后可套用房间配色</div>
+      <div class="packGrid">${packs}</div></div>`);
+  $('sheetClose').onclick=closeSheet;
+  const pHint=$('pHint'), pBox=$('pBox');
+  if(pHint) pHint.onclick=()=>{ closeSheet(); playAd('hint'); };
+  if(pBox) pBox.onclick=()=>{ closeSheet(); playAd('box'); };
+  $('pNoAds').onclick=()=>{
+    G.noAds=!G.noAds; saveAds();
+    log('noads_toggle',{on:G.noAds});
+    openProps();
+  };
+  $('sheet').querySelectorAll('.packCard').forEach(el=>{
+    el.onclick=()=>{
+      const id=el.dataset.pack;
+      if(!packUnlocked(id)){
+        const p=PACKS.find(x=>x.id===id);
+        log('pack_locked',{pack:id, need:p.need, keys:G.cleared.length});
+        bubble(`主题包「${p.name}」需要 ${p.need} 把钥匙 · 现在 ${G.cleared.length}`);
+        return;
+      }
+      G.pack=(G.pack===id)?null:id;
+      saveAds();
+      log('pack_select',{pack:G.pack, keys:G.cleared.length});
+      applySkin();
+      openProps();
+    };
+  });
+}
+
+// 主题包只影响配色，不重开关卡
+function applySkin(){
+  const L=LEVELS[G.levelIdx];
+  const skin=G.pack||L.theme;
+  room.dataset.theme=skin;
+  $('roomTag').textContent=THEMES[skin].name+(G.pack&&G.pack!==L.theme?' · 主题包':'');
+}
+
+// ---------- 弹窗 ----------
+function showModal(html){ $('modal').innerHTML=html; $('modalBg').classList.remove('hidden'); }
+function hideModal(){ $('modalBg').classList.add('hidden'); }
+function sheet(html){ $('sheet').innerHTML=html; $('sheetBg').classList.remove('hidden'); }
+function closeSheet(){ $('sheetBg').classList.add('hidden'); }
+
+// ---------- M2-B2：搬家日记 ----------
+function openJournal(highlight){
+  const unlocked=G.cleared;
+  log('journal_open',{unlocked:unlocked.length, total:LEVELS.length, highlight:(highlight==null?null:highlight+1)});
+  const items=DIARIES.map((d,i)=>{
+    if(!unlocked.includes(i)){
+      return `<div class="jItem locked"><h4>${String(i+1).padStart(2,'0')} · 未解锁</h4><div class="jMeta">整理完「${LEVELS[i].name}」后解锁</div></div>`;
+    }
+    return `<div class="jItem${i===highlight?' on':''}">
+      <h4>${String(i+1).padStart(2,'0')} · ${d.title}</h4>
+      <div class="jMeta">${LEVELS[i].owner} · ${LEVELS[i].name} · ${d.day}</div>
+      <p>${d.body}</p>
+      <div class="diarySign">—— ${d.sign}</div>
+    </div>`;
+  }).join('');
+  sheet(`<div class="sheetTop"><h2>搬家日记</h2><button class="sheetClose" id="sheetClose">关闭</button></div>
+    <p class="sheetSub">已解锁 ${unlocked.length} / ${LEVELS.length} 段 · 每整理完一间房，解锁一页。</p>
+    <div class="journalList">${items}</div>`);
+  $('sheetClose').onclick=closeSheet;
+}
+
+// ---------- M2-B2：门牌墙 / 整栋楼进度 ----------
+function openBuilding(){
+  const keys=G.cleared.length;
+  log('building_progress',{keys, total:LEVELS.length, houses:HOUSE_KEYS.map(t=>({theme:t, done:themeLevels(t).filter(i=>G.cleared.includes(i)).length, total:themeLevels(t).length}))});
+  const blocks=HOUSE_KEYS.map(t=>{
+    const idxs=themeLevels(t);
+    const done=idxs.filter(i=>G.cleared.includes(i)).length;
+    return `<div class="houseBlock">
+      <div class="houseHead"><b>${THEMES[t].name}</b><span>${done} / ${idxs.length} 把钥匙</span></div>
+      <div class="doors">${idxs.map(i=>`<div class="door${G.cleared.includes(i)?' on':''}">
+        <span class="plate">${String(i+1).padStart(2,'0')}</span>
+        <span class="rname">${LEVELS[i].name}</span>
+        <span class="keyDot"></span>
+      </div>`).join('')}</div>
+    </div>`;
+  }).join('');
+  sheet(`<div class="sheetTop"><h2>门牌墙</h2><button class="sheetClose" id="sheetClose">关闭</button></div>
+    <p class="sheetSub">整栋楼 ${keys} / ${LEVELS.length} 把钥匙 · 每复原一间房，点亮一块门牌。</p>
+    ${blocks}
+    <div class="keyBar"><span>总钥匙</span><b>${keys} / ${LEVELS.length}</b></div>`);
+  $('sheetClose').onclick=closeSheet;
+}
+
+function startScreen(){
+  G.state='idle';
+  showModal(`
+    <h1>归位</h1>
+    <p class="sub">收纳屋 · 3 个主题、12 间房。<br>把别人不愿扔的东西，一件件放回它该在的地方。</p>
+    <div class="rules">
+      <b>怎么玩</b><br>
+      1. 点最上层的物品，放进对应的收纳箱；被压住的先清上面。<br>
+      2. 暂时放不进的，塞进下方临时槽；槽满还硬拿，本间失败。<br>
+      3. 清空房间 → 陈设逐件复原 → 解锁一页搬家日记。<br>
+      4. 12 间房对应整栋楼 12 块门牌，整理过的房间会一直亮着。
+    </div>
+    <div class="modalBtns"><button id="startBtn">开始整理</button></div>
+  `);
+  $('startBtn').onclick=()=>{ ensureAudio(); hideModal(); startRun(); };
+}
+
+function startRun(){
+  G.run='R'+Math.random().toString(36).slice(2,6).toUpperCase();
+  G.runScore=0; G.levelIdx=0; G.state='idle';
+  log('session_start',{mode:'graybox', version:'M2-B4.0', game:'guiwei', levels:LEVELS.length, noAds:G.noAds, pack:G.pack});
+  startLevel(0);
+}
+
+// ---------- 循环 ----------
+let last=performance.now();
+function loop(t){
+  const dt=Math.min(.05,(t-last)/1000); last=t;
+  Perf.tick(dt, G.items.filter(i=>!i.removed).length);
+  if(G.state==='play'){
+    G.time-=dt;
+    if(G.time<=0){ G.time=0; updateHUD(); fail('timeout'); }
+    else if(Math.floor(G.time)!==Math.floor(G.time+dt)) updateHUD();
+  }
+  requestAnimationFrame(loop);
+}
+
+// ---------- 调试/验收通道 ----------
+function debugClear(){
+  if(G.state!=='play') return;
+  G.items.forEach(it=>{ if(!it.removed){ it.removed=true; if(it.el) it.el.remove(); } });
+  G.slots=[]; G.boxes.forEach(b=>{ b.count=b.target; b.done=true; }); G.boxes=[]; G.pending=[];
+  G.time=Math.max(G.time,12);
+  log('debug_clear',{level:G.levelIdx+1, note:'验收用：直接通关'});
+  renderBoxes(); renderSlots(); updateHUD(); updateBlocked();
+  levelClear();
+}
+
+$('btnRestart').onclick=()=>{ if(G.state==='play'||G.state==='fail'||G.state==='clear'||G.state==='restore'||G.state==='ad'){ hideModal(); log('restart',{level:G.levelIdx+1}); startLevel(G.levelIdx); } };
+$('btnProps').onclick=()=>openProps();
+$('btnDiary').onclick=()=>openJournal(G.state==='clear'?G.levelIdx:null);
+$('btnBld').onclick=()=>openBuilding();
+$('btnLog').onclick=()=>{ const p=$('logPanel'); p.style.display = p.style.display==='none'?'block':'none'; };
+$('copyLog').onclick=()=>SessionLog.copy();
+$('clearLog').onclick=()=>SessionLog.clear();
+addEventListener('keydown', e=>{
+  const k=e.key.toLowerCase();
+  if(k==='r'){ if(G.state!=='idle'){ hideModal(); log('restart',{level:G.levelIdx+1, key:'R'}); startLevel(G.levelIdx); } }
+  if(k==='l'){ const p=$('logPanel'); p.style.display = p.style.display==='none'?'block':'none'; }
+  if(k==='n') openJournal(G.state==='clear'?G.levelIdx:null);
+  if(k==='b') openBuilding();
+  if(k==='p') openProps();
+  if(k==='j') debugClear();
+});
+addEventListener('resize', ()=>{ requestAnimationFrame(updateBlocked); });
+
+window.__Ctest={ G, startRun, startLevel, debugClear, updateBlocked, Perf, openJournal, openBuilding, openProps, playAd, grant, applySkin, LEVELS, DIARIES, RESTORE, PACKS };
+window.__Cver='M2-B4.0';
+
+loadProgress();
+loadAds();
+SessionLog.renderAll();
+if(new URLSearchParams(location.search).has('qa')){ startRun(); } else { startScreen(); }
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

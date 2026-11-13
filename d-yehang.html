@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Night Ferry · M2 Vertical Slice (LJ-T-004)</title>
+<style>
+  :root{
+    --bg:#080c12; --panel:#111823; --panel2:#0d141d; --ink:#e8e0d0; --muted:#8f9aa8;
+    --line:#26313f; --gold:#d9b06a; --gold2:#f0cf94; --red:#c76a5a; --teal:#5f9e9a;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; min-height:100%;}
+  body{
+    background:radial-gradient(900px 500px at 50% -10%, #1a2433 0%, rgba(26,36,51,0) 60%), #080c12;
+    color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    display:flex; justify-content:center;
+  }
+  #app{width:100%; max-width:500px; min-height:100dvh; display:flex; flex-direction:column; gap:8px; padding:10px 10px 18px;}
+  header{display:flex; flex-direction:column; gap:7px;}
+  .brandRow{display:flex; align-items:flex-end; justify-content:space-between; gap:8px;}
+  .brand{font-family:Georgia,"Times New Roman",serif; font-size:22px; letter-spacing:6px; color:var(--gold2); line-height:1;}
+  .brand small{display:block; font-family:system-ui,sans-serif; font-size:9px; letter-spacing:2px; color:var(--muted); margin-top:5px;}
+  .chapterTag{font-size:10px; letter-spacing:1.5px; color:var(--muted); border:1px solid var(--line); border-radius:99px; padding:4px 9px; white-space:nowrap;}
+  .hud{display:flex; gap:6px;}
+  .hudChip{flex:1; background:rgba(17,24,35,.8); border:1px solid var(--line); border-radius:9px; padding:5px 8px; font-size:10px; color:var(--muted); display:flex; justify-content:space-between; align-items:center; letter-spacing:.5px;}
+  .hudChip b{font-size:12px; color:var(--ink); font-variant-numeric:tabular-nums; letter-spacing:0;}
+  #sceneWrap{position:relative; border:1px solid #2b3545; border-radius:16px; padding:7px; background:linear-gradient(180deg,#0f1620,#0a0f16); box-shadow:0 18px 40px rgba(0,0,0,.45);}
+  #scene{
+    position:relative; height:clamp(330px,50vh,450px); border-radius:11px; overflow:hidden; isolation:isolate;
+    background:
+      radial-gradient(circle at 72% 18%, var(--ca, rgba(217,176,106,.18)) 0%, rgba(0,0,0,0) 26%),
+      radial-gradient(circle at 30% 70%, var(--cb, rgba(63,94,110,.20)) 0%, rgba(0,0,0,0) 40%),
+      linear-gradient(180deg, var(--c1,#1b2635) 0%, var(--c2,#121a26) 52%, var(--c3,#0a0f17) 100%);
+    cursor:crosshair; touch-action:manipulation;
+  }
+  .porthole{
+    position:absolute; left:10%; top:12%; width:34%; aspect-ratio:1; border-radius:50%;
+    background:radial-gradient(circle at 40% 35%, #cfe0ea 0%, #8eabbd 28%, #4b657a 55%, #1a2734 78%, #0b1119 100%);
+    border:7px solid #2c3745; box-shadow:0 0 0 3px #0b1119, inset 0 0 22px rgba(0,0,0,.7), 0 0 30px rgba(160,190,210,.12);
+  }
+  .porthole::after{content:""; position:absolute; inset:18% 8% 8% 18%; border-radius:50%;
+    background:linear-gradient(180deg, transparent 54%, rgba(6,12,18,.55) 55%, rgba(6,12,18,.8) 100%);}
+  .moon{position:absolute; right:14%; top:10%; width:44px; height:44px; border-radius:50%; background:radial-gradient(circle at 35% 35%,#f6e6bd,#d9b06a 60%,#8a6a3a 100%); box-shadow:0 0 38px rgba(240,207,148,.35); opacity:.8;}
+  .rain{position:absolute; inset:0; pointer-events:none; opacity:.20;
+    background-image:repeating-linear-gradient(102deg, transparent 0 11px, rgba(200,220,235,.35) 11px 12px, transparent 12px 26px);
+    background-size:100% 100%; animation:rain 1.2s linear infinite;}
+  @keyframes rain{from{transform:translateY(-8px);}to{transform:translateY(8px);}}
+  .fog{position:absolute; inset:0; pointer-events:none; z-index:40;
+    background:
+      radial-gradient(ellipse 60% 30% at 20% 68%, rgba(190,205,215,.12) 0%, rgba(190,205,215,0) 70%),
+      radial-gradient(ellipse 55% 26% at 78% 40%, rgba(190,205,215,.10) 0%, rgba(190,205,215,0) 70%),
+      radial-gradient(ellipse 70% 30% at 50% 92%, rgba(190,205,215,.10) 0%, rgba(190,205,215,0) 70%);
+    animation:fog 9s ease-in-out infinite alternate;}
+  @keyframes fog{from{transform:translateX(-2%);}to{transform:translateX(2%);}}
+  .vignette{position:absolute; inset:0; pointer-events:none; z-index:50; box-shadow:inset 0 0 90px rgba(0,0,0,.85);}
+  .shelf{position:absolute; left:58%; top:34%; width:34%; height:5px; background:#2c3745; border-radius:3px; box-shadow:0 5px 0 rgba(0,0,0,.25); z-index:4;}
+  .shelf::after{content:""; position:absolute; left:4%; right:4%; bottom:5px; height:9px; border-left:2px solid #3a4757; border-right:2px solid #3a4757; opacity:.5;}
+  .floorLine{position:absolute; left:0; right:0; bottom:22%; height:1px; background:rgba(200,220,235,.12); z-index:3;}
+  /* M2-B3：矢量场景层（替代纯 CSS 占位，约占场景 30%） */
+  #sceneArt{position:absolute; inset:0; z-index:2; pointer-events:none; opacity:.9;}
+  #sceneArt svg{width:100%; height:100%; display:block;}
+  #sceneArt .ln{fill:none; stroke:rgba(var(--cr,217,176,106),.26); stroke-width:1.3; stroke-linecap:round;}
+  #sceneArt .ln2{fill:none; stroke:rgba(200,220,235,.10); stroke-width:1;}
+  #sceneArt .faint{fill:rgba(255,255,255,.026);}
+  #sceneArt .dark{fill:rgba(0,0,0,.26);}
+  #sceneArt .gold{fill:none; stroke:rgba(var(--cr,217,176,106),.42); stroke-width:1.1; stroke-linecap:round;}
+  #sceneArt .halo{fill:rgba(var(--cr,217,176,106),.07);}
+  #objects{position:absolute; inset:0; z-index:20; pointer-events:none;}
+  .target{
+    position:absolute; margin:0; padding:0; border:none; background:transparent; cursor:pointer;
+    width:calc(var(--s,28px) * 1.15); height:calc(var(--s,28px) * 1.15);
+    transform:translate(-50%,-50%) rotate(var(--r,0deg)); color:#d8cdb6;
+    filter:sepia(.18) brightness(.9) contrast(1.05); opacity:.82;
+    transition:transform .15s, opacity .2s, filter .2s; pointer-events:auto; user-select:none;
+    text-shadow:0 2px 6px rgba(0,0,0,.6);
+  }
+  .target svg{width:100%; height:100%; display:block; filter:drop-shadow(0 1px 3px rgba(0,0,0,.65));}
+  .target:hover{opacity:1; filter:sepia(.05) brightness(1.15);}
+  .target.found{opacity:0; transform:translate(-50%,-50%) scale(.2); pointer-events:none;}
+  .target.hint{animation:hintPulse 1s ease-in-out infinite; filter:brightness(1.8) drop-shadow(0 0 12px rgba(240,207,148,.9)); opacity:1;}
+  @keyframes hintPulse{0%,100%{transform:translate(-50%,-50%) scale(1) rotate(var(--r,0deg));}50%{transform:translate(-50%,-50%) scale(1.22) rotate(var(--r,0deg));}}
+  .deco{position:absolute; transform:translate(-50%,-50%) rotate(var(--r,0deg)); width:var(--s,22px); height:var(--s,22px); color:#9fb0c0; opacity:.22; pointer-events:none; filter:grayscale(.4); z-index:8;}
+  .deco svg{width:100%; height:100%; display:block;}
+  .ring{position:absolute; width:10px; height:10px; border:2px solid var(--gold2); border-radius:50%; z-index:60; pointer-events:none; animation:ring .65s ease-out forwards;}
+  @keyframes ring{to{width:86px; height:86px; margin:-38px; opacity:0;}}
+  .wrongMark{position:absolute; z-index:65; color:var(--red); font-size:20px; font-weight:700; pointer-events:none; animation:wrong .7s ease-out forwards;}
+  @keyframes wrong{to{transform:translateY(-18px) scale(1.3); opacity:0;}}
+  #sceneLabel{position:absolute; left:9px; top:9px; z-index:70; font-size:9px; letter-spacing:1.6px; color:var(--gold2); background:rgba(8,12,18,.62); border:1px solid rgba(217,176,106,.28); border-radius:99px; padding:4px 9px; backdrop-filter:blur(4px);}
+  #story{
+    position:relative; z-index:80; margin-top:7px; min-height:52px; border:1px solid #2b3545; border-radius:10px;
+    background:linear-gradient(180deg,rgba(17,24,35,.92),rgba(10,15,22,.92)); padding:8px 11px; font-size:11.5px; line-height:1.6; color:#c9c1b2;
+    font-family:Georgia,"Times New Roman",serif; font-style:italic; display:flex; gap:8px; align-items:flex-start;
+  }
+  #story .ico{font-style:normal; flex:0 0 auto; width:2px; align-self:stretch; margin:2px 0; background:var(--gold); border-radius:2px;}
+  #clues{display:grid; grid-template-columns:repeat(3,1fr); gap:6px;}
+  .clue{
+    display:flex; align-items:center; gap:5px; padding:6px 7px; border:1px solid #26313f; border-radius:9px;
+    background:rgba(17,24,35,.72); font-size:10px; color:#b9b1a2; min-width:0; transition:all .2s;
+  }
+  .clue .e{width:17px; height:17px; flex:0 0 auto; color:#c9b98f; display:block;}
+  .clue .e svg{width:100%; height:100%; display:block;}
+  .clue .n{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .clue.found{opacity:.38; text-decoration:line-through; border-color:#1c2530;}
+  .clue.found::after{content:"✓"; margin-left:auto; color:var(--gold); font-size:11px;}
+  footer{display:flex; gap:7px;}
+  button.ui{flex:1; padding:9px 8px; border-radius:10px; border:1px solid #2b3545; background:#121a24; color:#c9c1b2; font-size:11px; font-weight:600; cursor:pointer; letter-spacing:.3px;}
+  button.ui:active{transform:translateY(1px);}
+  #hintBtn{border-color:rgba(217,176,106,.42); color:var(--gold2);}
+  #perf{margin-top:2px; font:10.5px ui-monospace,Menlo,Consolas,monospace; color:#6f9a8f; background:#0b1411; border:1px solid #1d302a; border-radius:8px; padding:5px 9px;}
+  #logPanel{background:#0b1119; border:1px solid #26313f; border-radius:10px; overflow:hidden; font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .logHead{display:flex; gap:8px; align-items:center; padding:6px 9px; background:#101823; font-size:10px; color:#7f8b99;}
+  .logHead button{font-size:10px; padding:2px 8px; border:1px solid #2b3545; background:#121a24; color:#b9c2cc; border-radius:5px; cursor:pointer;}
+  #logBody{max-height:132px; overflow-y:auto; padding:5px 9px; font-size:10px; line-height:1.7; color:#7f8b99;}
+  #logBody .ev b{color:var(--gold); font-weight:400;}
+  #logBody .d{color:#55616f;}
+  .modalBg{position:fixed; inset:0; z-index:2000; background:rgba(3,6,10,.72); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:18px;}
+  .modalBg.hidden{display:none;}
+  .modal{
+    width:100%; max-width:380px; background:linear-gradient(180deg,#111a26,#0b1119); border:1px solid #2e3a49; border-radius:18px;
+    padding:22px 18px 16px; box-shadow:0 24px 70px rgba(0,0,0,.6); text-align:center;
+  }
+  .modal h1{font-family:Georgia,serif; font-size:28px; letter-spacing:8px; color:var(--gold2); margin:0 0 6px; font-weight:400;}
+  .modal h2{font-family:Georgia,serif; font-size:19px; letter-spacing:1.5px; color:var(--gold2); margin:0 0 8px; font-weight:400;}
+  .modal .sub{font-size:11.5px; color:var(--muted); line-height:1.7; margin:0 0 14px;}
+  .modal p{font-size:12px; color:#b9b1a2; line-height:1.75; margin:7px 0;}
+  .rules{text-align:left; border:1px solid #2b3545; background:#0d141d; border-radius:10px; padding:10px 12px; font-size:11px; line-height:1.8; color:#a9a396; margin:0 0 14px;}
+  .rules b{color:var(--gold2);}
+  .modalBtns{display:flex; gap:8px; margin-top:15px;}
+  .modalBtns button{flex:1; padding:11px 8px; border-radius:10px; border:1px solid rgba(217,176,106,.5); background:linear-gradient(180deg,#d9b06a,#b98d4b); color:#191307; font-size:12.5px; font-weight:800; cursor:pointer; letter-spacing:.4px;}
+  .modalBtns button.ghost{background:#141d29; color:#c9c1b2; border-color:#2b3545; font-weight:600;}
+  .lanterns{display:flex; gap:7px; justify-content:center; align-items:center; margin:4px 0 8px; height:30px;}
+  .lanterns i{display:block; width:18px; height:23px; border-radius:6px / 8px; border:1px solid #4a3d26;
+    background:radial-gradient(circle at 50% 42%, #f6e6bd 0%, #d9b06a 55%, #7d5f30 100%);
+    box-shadow:0 0 14px rgba(240,207,148,.45);}
+  .lanterns i.off{background:#141c26; border-color:#2b3545; box-shadow:none; opacity:.5;}
+  .decorChoices{display:flex; gap:8px; margin:12px 0 4px;}
+  .decorCard{flex:1; min-width:0; padding:11px 6px 9px; border:1px solid #2e3a49; border-radius:12px; background:#0f1620; cursor:pointer; color:#c9c1b2; transition:border-color .15s, transform .15s, background .15s;}
+  .decorCard:hover{border-color:var(--gold); background:#141d28; transform:translateY(-1px);}
+  .decorCard svg{width:30px; height:30px; display:block; margin:0 auto; color:var(--gold2);}
+  .decorCard .n{font-size:9.5px; line-height:1.35; margin-top:7px; color:#b9b1a2;}
+  .mapGrid{display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin:12px 0 4px;}
+  .mapCard{position:relative; text-align:left; padding:8px 9px; border:1px solid #2e3a49; border-radius:10px; background:#0f1620; color:#c9c1b2; cursor:pointer;}
+  .mapCard b{display:block; font-family:Georgia,serif; font-size:10.5px; letter-spacing:1.5px; color:var(--gold2);}
+  .mapCard span{display:block; font-size:9.5px; line-height:1.35; margin-top:3px; color:#a9a396; padding-right:10px;}
+  .mapCard.done{border-color:rgba(217,176,106,.45);}
+  .mapCard.done::after{content:"\2713"; position:absolute; right:8px; top:6px; color:var(--gold); font-size:11px;}
+  .mapCard.locked{opacity:.38; cursor:not-allowed;}
+  .mapCard:not(.locked):hover{border-color:var(--gold); background:#141d28;}
+  .statRow{display:flex; justify-content:space-between; font-size:11.5px; color:#a9a396; padding:5px 2px; border-bottom:1px solid #1b2430;}
+  .statRow:last-child{border-bottom:none;}
+  .statRow b{color:var(--ink); font-variant-numeric:tabular-nums;}
+  .storyCard{text-align:left; background:#0d141d; border-left:2px solid var(--gold); border-radius:0 8px 8px 0; padding:10px 12px; font-size:12px; line-height:1.8; color:#c9c1b2; margin:10px 0 4px; font-family:Georgia,serif; font-style:italic;}
+  .adCount{font-size:42px; font-weight:800; color:var(--gold2); margin:8px 0 2px;}
+  @media (max-width:420px){
+    #app{padding:8px 8px 14px;}
+    #scene{height:46vh; min-height:310px;}
+    .brand{font-size:19px;}
+    .clue{font-size:9px; padding:5px 6px;}
+    .clue .e{font-size:14px;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brandRow">
+      <div class="brand">NIGHT FERRY<small>M2 VERTICAL SLICE · LJ-T-004</small></div>
+      <div class="chapterTag" id="chapterTag">CHAPTER I / X</div>
+    </div>
+    <div class="hud">
+      <div class="hudChip"><span>CHAPTER</span><b id="hudCh">1/10</b></div>
+      <div class="hudChip"><span>TIME</span><b id="hudTime">75</b></div>
+      <div class="hudChip"><span>FOUND</span><b id="hudFound">0/6</b></div>
+      <div class="hudChip"><span>DECOR</span><b id="hudDecor">0/9</b></div>
+      <div class="hudChip"><span>SCORE</span><b id="hudScore">0</b></div>
+    </div>
+  </header>
+
+  <main>
+    <div id="sceneWrap">
+      <div id="scene" data-ch="1">
+        <div class="porthole"></div>
+        <div class="moon"></div>
+        <div class="shelf"></div>
+        <div class="floorLine"></div>
+        <div id="sceneArt"></div>
+        <div class="rain"></div>
+        <div id="decos"></div>
+        <div id="objects"></div>
+        <div class="fog"></div>
+        <div class="vignette"></div>
+        <div id="sceneLabel">CABIN 7 · THE PASSENGER</div>
+      </div>
+      <div id="story"><span class="ico"></span><span id="storyText">The ferry left the pier three nights ago. The fog has not lifted since.</span></div>
+    </div>
+
+    <div id="clues"></div>
+  </main>
+
+  <footer>
+    <button class="ui" id="hintBtn">Hint · Ad</button>
+    <button class="ui" id="btnMap">Map (M)</button>
+    <button class="ui" id="btnRestart">Restart (R)</button>
+    <button class="ui" id="btnLog">Log (L)</button>
+  </footer>
+
+  <div id="perf">Performance: sampling…</div>
+  <div id="logPanel">
+    <div class="logHead"><span id="logTitle">TELEMETRY · vB3.0</span><span id="logCount">0</span><button id="copyLog">Copy JSON</button><button id="clearLog">Clear</button></div>
+    <div id="logBody"></div>
+  </div>
+</div>
+
+<div class="modalBg hidden" id="modalBg">
+  <div class="modal" id="modal"></div>
+</div>
+<div class="modalBg hidden" id="mapBg">
+  <div class="modal" id="mapModal"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const scene = $('scene'), objectsEl = $('objects'), decosEl = $('decos'), cluesEl = $('clues');
+const sceneArtEl = $('sceneArt');
+
+// ---------- 线稿图标（不依赖 emoji 字体） ----------
+const ICONS={
+  key:'<circle cx="7" cy="12" r="3.2"/><path d="M10.2 12H21M17 12v3M20 12v2.2"/>',
+  feather:'<path d="M20 4C13 4 7.5 8.5 5 20c8-1 14-6 15-16Z"/><path d="M20 4 8 16"/>',
+  candle:'<path d="M9 21h6M10 21V11h4v10M12 8c1.8-2 1.8-3.4 0-5-1.8 1.6-1.8 3 0 5ZM8 11h8"/>',
+  watch:'<circle cx="12" cy="13" r="6.2"/><path d="M12 9.5V13l2.6 1.8M12 3v3M10 3h4"/>',
+  photo:'<rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="m5.5 17 4-5 3 3 2.5-2.5 3.5 4.5"/><circle cx="9" cy="9" r="1.2"/>',
+  thread:'<path d="M4 17c3-6 5 2 8-2s4-4 8-8M17 6h4v4"/><circle cx="5" cy="18" r="1.2"/>',
+  hook:'<path d="M8 3v8a4 4 0 0 0 8 0v-2M16 9h4v4"/><circle cx="8" cy="3" r="1.2"/>',
+  shell:'<path d="M4 18C4 9 8 4 12 4s8 5 8 14H4Z"/><path d="M12 4v14M8 6l2 12M16 6l-2 12"/>',
+  mirror:'<ellipse cx="12" cy="10" rx="5.5" ry="7"/><path d="M12 3v14M14 5l-3 4 2 2-1 3M9 20h6"/>',
+  bell:'<path d="M6 17h12c-1.5-1.6-2-3.5-2-6a4 4 0 0 0-8 0c0 2.5-.5 4.4-2 6ZM12 4V3M10.5 20a1.5 1.5 0 0 0 3 0"/>',
+  beads:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="5" r="1"/><circle cx="17.5" cy="8" r="1"/><circle cx="19" cy="14" r="1"/><circle cx="15" cy="18.5" r="1"/><circle cx="8.5" cy="18" r="1"/><circle cx="5" cy="12.5" r="1"/><circle cx="7" cy="7.5" r="1"/>',
+  coin:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="5"/><path d="M9 12h6M12 9v6"/>',
+  lantern:'<path d="M9 4h6M10 4v2h4V4M9 6h6l1 11H8L9 6ZM8 17h8M12 17v4M10 21h4"/>',
+  compass:'<circle cx="12" cy="12" r="8"/><path d="m9 15 2-6 4-2-2 6-4 2Z"/><circle cx="12" cy="12" r="1"/>',
+  letter:'<rect x="4" y="6" width="16" height="12" rx="1"/><path d="m4 7 8 6 8-6M14 15h3"/>',
+  crane:'<path d="M4 19 10 9l4 4 6-8-2 10-6 2-4 4-4-2ZM10 9 8 4"/>',
+  anchor:'<circle cx="12" cy="4" r="1.6"/><path d="M12 6v14M8 10h8M5 15a7 7 0 0 0 14 0"/>',
+  flint:'<path d="m5 16 4-8 6 2 4 7-7 3-7-4Z"/><path d="m14 5 1-2M18 7l2-1M16 10l2 1"/>',
+  bed:'<path d="M3 18v-8h12a6 6 0 0 1 6 6v2M3 14h18M6 10V7h6v3M3 20v-2M21 20v-2"/>',
+  chair:'<path d="M7 3v10h10M17 3v10M7 13h10v7M9 20v-3M15 20v-3"/>',
+  crate:'<rect x="4" y="6" width="16" height="14" rx="1.5"/><path d="M9 6v14M15 6v14M4 13h16"/>',
+  window:'<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M12 4v16M4 12h16"/>',
+  web:'<path d="M4 20 20 4M12 4a8 8 0 0 1 8 8M12 8a4 4 0 0 1 4 4"/><path d="M4 12h16M12 4v16"/>',
+  ladder:'<path d="M7 3v18M17 3v18M7 8h10M7 13h10M7 18h10"/>',
+  bucket:'<path d="M5 7h14l-2 13H7L5 7ZM8 7a4 4 0 0 1 8 0"/>',
+  chain:'<circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/><path d="M11 12h2"/>',
+  plank:'<rect x="2.5" y="9" width="19" height="6" rx="2"/><path d="M7 9v6M17 9v6"/>',
+  toolbox:'<rect x="3" y="9" width="18" height="10" rx="1.5"/><path d="M9 9V6h6v3M3 13h18"/>',
+  barrel:'<path d="M7 4h10l1 16H6L7 4ZM6 9h12M6 15h12"/>',
+  // M2-B2：第 4~10 章新增线稿
+  spoon:'<ellipse cx="9" cy="6.5" rx="3" ry="4"/><path d="M9 10.5V20"/>',
+  teapot:'<path d="M4 13h10v2a5 5 0 0 1-10 0v-2Z"/><path d="M14 14h2a2 2 0 0 1 0 4h-2M6 10c2-1 2-3 0-4M10 10c2-1 2-3 0-4"/>',
+  napkin:'<path d="M5 6h14L12 18 5 6Z"/><path d="M12 6v12M8 12h8"/>',
+  wineglass:'<path d="M8 4h8c0 5-2 7-4 7s-4-2-4-7Z"/><path d="M12 11v7M9 20h6"/>',
+  menu:'<rect x="6" y="3.5" width="12" height="17" rx="1.5"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  salt:'<path d="M7 10h10l-1 10H8L7 10Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3M9.5 14h.01M12 14h.01M14.5 14h.01"/>',
+  valve:'<circle cx="12" cy="12" r="3"/><path d="M12 4v5M12 15v5M4 12h5M15 12h5M6 6l3.5 3.5M18 18l-3.5-3.5M18 6l-3.5 3.5M6 18l3.5-3.5"/>',
+  gauge:'<path d="M4.5 16a8 8 0 1 1 15 0"/><path d="M12 16l4-5M7 18h10"/>',
+  shovel:'<path d="M14 4l6 6-4 4-6-6 4-4Z"/><path d="M10 11 4 17l3 3 6-6"/>',
+  coal:'<path d="m6 15 3-6 5 1 4 5-4 4-8-4Z"/><path d="M9 9l2 3M15 10l-1 4"/>',
+  steam:'<path d="M4 8h6a4 4 0 0 0 4-4M10 8v8a4 4 0 0 0 4 4h6"/><circle cx="4" cy="8" r="1.4"/><circle cx="20" cy="20" r="1.4"/>',
+  wrench:'<path d="M14 4a5 5 0 0 0-6 6L4 14l6 6 4-4a5 5 0 0 0 6-6l-3 3-3-3 3-3-3-3Z"/>',
+  bottle:'<path d="M9 3h6v3l2 3v12H7V9l2-3V3Z"/><path d="M7 13h10M10 3v3M14 3v3"/>',
+  bandage:'<g transform="rotate(-20 12 12)"><rect x="3" y="9" width="18" height="6" rx="3"/><path d="M9 10.5h.01M12 13h.01M15 11h.01"/></g>',
+  stethoscope:'<path d="M6 3v6a5 5 0 0 0 10 0V3M11 14v3a4 4 0 0 0 8 0v-2"/><circle cx="19" cy="12" r="2"/>',
+  chart:'<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="m8 15 3-4 2 2 3-5M7 18h10"/>',
+  pills:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>',
+  tonic:'<rect x="6" y="7" width="12" height="14" rx="2"/><path d="M5 7h14M9 3h6v4M9 12h6"/>',
+  cross:'<path d="M12 3v18M6 9h12"/>',
+  hymnbook:'<path d="M5 4h9a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4Z"/><path d="M16 6h3v14M9 9h4M9 12h4"/>',
+  censer:'<path d="M9 5h6l-1 3H10L9 5Z"/><path d="M10 8c-3 1-4 4-4 7a6 6 0 0 0 12 0c0-3-1-6-4-7"/><path d="M12 5V2M14 3l2-1M10 3 8 2"/>',
+  chalice:'<path d="M8 3h8c0 4-2 6-4 6s-4-2-4-6Z"/><path d="M12 9v9M8 20h8"/>',
+  veil:'<path d="M5 6c5-3 9-3 14 0v5c-5-2-9-2-14 0V6Z"/><path d="M6 6v13M18 6v13M9 20h6"/>',
+  votive:'<path d="M7 20h10M8 20v-7h8v7"/><path d="M12 13V7M12 7c1.6-1.6 1.6-3 0-4-1.6 1.2-1.6 2.4 0 4Z"/>',
+  sextant:'<path d="M12 4v16M5 18 12 6l7 12M7 14h10"/>',
+  logbook:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  tobacco:'<path d="M4 14h8a4 4 0 0 0 4-4V7"/><path d="M16 7h4v5M4 14v4h8v-4"/>',
+  medal:'<circle cx="12" cy="9" r="4"/><path d="M9 12 7 21l5-3 5 3-2-9"/>',
+  spyglass:'<path d="M4 16 18 6l2 3L6 19l-2-3Z"/><path d="M15 8l3 4"/>',
+  quill:'<path d="M20 4C13 4 8 9 6 18c0-6 4-10 9-11-5 3-8 7-9 11 0 2 2 2 3 1L20 4Z"/>',
+  doll:'<circle cx="12" cy="7" r="3.2"/><path d="M12 10v6M8 12h8M9 20l3-4 3 4"/>',
+  marble:'<circle cx="12" cy="13" r="6"/><path d="M8 10c2 1 6 1 8 0"/>',
+  kite:'<path d="M12 3l7 7-7 8-7-8 7-7Z"/><path d="M12 3v15M5 10h14"/><path d="M12 18c1 2 3 2 4 1"/>',
+  soldier:'<path d="M9 5h6l-1-2H10L9 5Z"/><circle cx="12" cy="7.5" r="1.8"/><path d="M12 9.5V15M9 11h6M9 20l3-5 3 5"/>',
+  musicbox:'<rect x="4" y="12" width="16" height="8" rx="1.5"/><path d="M8 12V8a4 4 0 0 1 8 0v4M12 4v2"/>',
+  chalk:'<g transform="rotate(-18 12 12)"><rect x="4" y="10" width="11" height="4" rx="2"/></g><path d="M17 15l3 3"/>',
+  gear:'<circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>',
+  piston:'<rect x="4" y="9" width="9" height="6" rx="1"/><path d="M13 12h7M17 8v8M4 12H2"/>',
+  ember:'<path d="M12 3c3 4 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-5 0 2 1 3 2 3 0-3 1-5 1-7Z"/>',
+  mask:'<path d="M5 8c4-2 10-2 14 0v4c0 4-3 7-7 7s-7-3-7-7V8Z"/><path d="M9 11h1.5M13.5 11H15M10 15c1.5 1 2.5 1 4 0"/>',
+  hourglass:'<path d="M7 3h10M7 21h10M8 3c0 5 4 6 4 9s-4 4-4 9M16 3c0 5-4 6-4 9s4 4 4 9"/>',
+  helm:'<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 4v4M12 16v4M4 12h4M16 12h4M6.5 6.5l2.8 2.8M14.7 14.7l2.8 2.8M17.5 6.5l-2.8 2.8M9.3 14.7l-2.8 2.8"/>',
+};
+function iconSvg(id){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[id]||''}</svg>`;}
+
+// ---------- 章节内容 ----------
+const CHAPTERS = [
+  {
+    no:'Chapter I', title:'The Passenger Cabin', label:'CABIN 7 · THE PASSENGER', time:75,
+    intro:'The ferry left the pier three nights ago. The fog has not lifted since. In Cabin 7, a passenger is waiting for a room that is no longer hers.',
+    outro:'The passenger finally looks up. "You are the new ferryman," she says. "Then you should know: the ship is not going to the island. It is going back."',
+    targets:[
+      {id:'key',    e:'🗝️', name:'Brass Key',    x:22, y:64, s:25, r:-14, line:'The key is warm. Someone has been holding it.'},
+      {id:'feather',e:'🪶', name:'Black Feather', x:69, y:28, s:26, r:22,  line:'A black feather, still soft. No bird has flown here for years.'},
+      {id:'candle', e:'🕯️', name:'Candle',       x:47, y:19, s:24, r:0,   line:'The candle was lit after the passenger stopped breathing.'},
+      {id:'watch',  e:'🕰️', name:'Pocket Watch', x:79, y:74, s:27, r:12,  line:'The watch stopped at 3:17. So did the ship.'},
+      {id:'photo',  e:'🖼️', name:'Photograph',   x:35, y:82, s:24, r:-8,  line:'Two sisters at the pier. One of them is the passenger.'},
+      {id:'thread', e:'🧵', name:'Red Thread',   x:58, y:56, s:22, r:36,  line:'A red thread tied to the bedpost. The other end goes into the fog.'},
+    ],
+    decos:[
+      {i:'bed',x:16,y:36,s:34,r:-6},{i:'chair',x:82,y:44,s:26,r:0},{i:'plank',x:12,y:84,s:26,r:-8},
+      {i:'crate',x:62,y:86,s:24,r:6},{i:'window',x:47,y:48,s:24,r:0},{i:'web',x:88,y:16,s:20,r:0}
+    ]
+  },
+  {
+    no:'Chapter II', title:'The Cargo Hold', label:'LOWER DECK · CARGO', time:80,
+    intro:'Below the waterline, the hold is full of crates that were never on the manifest. Each one has a name painted on it.',
+    outro:'The cargo is not cargo. They are passengers who paid with something other than money. One crate is empty, and it has your name on it.',
+    targets:[
+      {id:'hook',   e:'🪝', name:'Rusty Hook',   x:15, y:30, s:26, r:-24, line:'The hook is clean. The sea has not touched it.'},
+      {id:'shell',  e:'🐚', name:'Conch Shell',  x:72, y:79, s:25, r:10,  line:'Hold it to your ear: you hear the pier, not the sea.'},
+      {id:'mirror', e:'🪞', name:'Cracked Mirror',x:48, y:42, s:30, r:-5, line:'The mirror shows the cabin behind you, not the hold.'},
+      {id:'bell',   e:'🔔', name:'Ship Bell',    x:84, y:24, s:23, r:0,   line:'The bell rings once. Somewhere below, someone answers.'},
+      {id:'beads',  e:'📿', name:'Prayer Beads', x:30, y:67, s:24, r:18,  line:'Forty-nine beads. The fiftieth is missing.'},
+      {id:'coin',   e:'🪙', name:'Sunken Coin',  x:60, y:86, s:22, r:0,   line:'A coin from the year the ferry sank.'},
+    ],
+    decos:[
+      {i:'crate',x:24,y:22,s:34,r:-4},{i:'plank',x:66,y:58,s:30,r:14},{i:'bucket',x:16,y:82,s:22,r:0},
+      {i:'chain',x:86,y:52,s:28,r:-10},{i:'toolbox',x:38,y:86,s:24,r:0},{i:'web',x:72,y:14,s:20,r:0}
+    ]
+  },
+  {
+    no:'Chapter III', title:'The Lantern Room', label:'TOP DECK · LANTERN', time:85,
+    intro:'The lantern room is the only place on the ferry with a window. Through it, the shore is always the same distance away.',
+    outro:'You light the lantern. The fog does not lift, but the shore appears—not ahead, but behind you. The ferry has been going home all along.',
+    targets:[
+      {id:'lantern',e:'🏮', name:'Paper Lantern', x:50, y:20, s:32, r:0,   line:'The lantern is warm, but the flame casts no shadow.'},
+      {id:'compass',e:'🧭', name:'Brass Compass', x:22, y:58, s:26, r:-12, line:'The needle points down, into the hull.'},
+      {id:'letter', e:'📜', name:"Captain's Letter",x:76, y:66, s:26, r:8, line:'"If the fog lifts, do not dock. We are not ready."'},
+      {id:'crane',  e:'🐦', name:'Paper Crane',   x:64, y:34, s:22, r:16,  line:'Folded from a ticket. The destination is blank.'},
+      {id:'anchor', e:'⚓', name:'Anchor Charm',  x:38, y:80, s:25, r:0,   line:'The anchor is heavy. Heavier than the ship.'},
+      {id:'flint',  e:'🔥', name:'Flint',         x:84, y:46, s:22, r:0,   line:'One spark is enough. That is what the captain wrote.'},
+    ],
+    decos:[
+      {i:'ladder',x:14,y:24,s:32,r:-6},{i:'plank',x:30,y:38,s:28,r:20},{i:'bucket',x:18,y:82,s:22,r:0},
+      {i:'toolbox',x:58,y:88,s:24,r:0},{i:'web',x:88,y:14,s:20,r:0},{i:'window',x:50,y:48,s:24,r:0}
+    ]
+  },
+  {
+    no:'Chapter IV', title:'The Dining Saloon', label:'SALOON · DINNER FOR FORTY', time:90,
+    intro:'The tables are set for forty, but only one chair is pulled out. The menu is handwritten, and every dish on it was served the night the ferry left.',
+    outro:'The steward clears the last plate and thanks you for coming. Under the tablecloth you find forty napkins, each folded into a small boat.',
+    targets:[
+      {id:'spoon',     name:'Silver Spoon',  x:18, y:62, s:24, r:-10, line:'The spoon is polished. It has never touched food.'},
+      {id:'teapot',    name:'Teapot',        x:42, y:30, s:26, r:0,   line:'The pot is still warm. The tea inside is seawater.'},
+      {id:'napkin',    name:'Folded Napkin', x:70, y:70, s:24, r:14,  line:'Folded into a boat. There are thirty-nine more.'},
+      {id:'wineglass', name:'Full Glass',    x:27, y:79, s:24, r:0,   line:'One glass is full. It has been full for three nights.'},
+      {id:'menu',      name:'Handwritten Menu', x:62, y:22, s:23, r:8, line:'Forty dishes. Forty guests. No one is sitting down.'},
+      {id:'salt',      name:'Salt Cellar',   x:84, y:50, s:22, r:-6,  line:'The salt is dry. Everything else in this room is wet.'},
+    ],
+    decos:[
+      {i:'chair',x:14,y:38,s:34,r:-4},{i:'plank',x:46,y:14,s:30,r:0},{i:'bucket',x:18,y:86,s:22,r:0},
+      {i:'crate',x:84,y:82,s:26,r:6},{i:'window',x:54,y:50,s:24,r:0},{i:'web',x:88,y:14,s:20,r:0}
+    ]
+  },
+  {
+    no:'Chapter V', title:'The Boiler Room', label:'LOWER DECK · BOILERS', time:92,
+    intro:'The boilers were cold when the ferry left the pier. They are warm now, and no one has fed them coal for three nights.',
+    outro:'The pressure gauge climbs when you speak. The ship is not listening to the engine. It is listening to the passengers.',
+    targets:[
+      {id:'valve',  name:'Iron Valve',   x:20, y:40, s:25, r:-16, line:'The valve turns freely. The pipe behind it connects to nothing.'},
+      {id:'gauge',  name:'Pressure Gauge', x:58, y:20, s:24, r:0,  line:'The needle points past the red line, into a word that is not a number.'},
+      {id:'shovel', name:'Coal Shovel',  x:36, y:76, s:25, r:18,  line:'Clean iron. The coal dust on the handle is shaped like a hand.'},
+      {id:'coal',   name:'Warm Coal',    x:72, y:68, s:24, r:-8,  line:'The coal is warm, but it has never burned.'},
+      {id:'steam',  name:'Steam Leak',   x:84, y:36, s:22, r:0,   line:'Steam leaks from a seam shaped like a mouth.'},
+      {id:'wrench', name:'Greasy Wrench',x:14, y:80, s:24, r:24,  line:'Still greasy. Someone was working here a moment ago.'},
+    ],
+    decos:[
+      {i:'chain',x:86,y:56,s:28,r:-10},{i:'toolbox',x:40,y:88,s:24,r:0},{i:'barrel',x:22,y:24,s:30,r:-4},
+      {i:'ladder',x:66,y:44,s:26,r:0},{i:'bucket',x:16,y:60,s:22,r:0},{i:'web',x:74,y:14,s:20,r:0}
+    ]
+  },
+  {
+    no:'Chapter VI', title:'The Infirmary', label:'MID DECK · INFIRMARY', time:95,
+    intro:'Forty beds, forty charts, and not one patient. The lamp above the door is still swinging.',
+    outro:'The last chart is yours. It has been filled in since the night you boarded, and the handwriting matches your own.',
+    targets:[
+      {id:'bottle',      name:'Medicine Bottle', x:24, y:34, s:24, r:-6, line:'The label says: one spoonful before the fog.'},
+      {id:'bandage',     name:'Rolled Bandage',  x:54, y:62, s:24, r:20, line:'Still rolled tight. The blood on it is fresh.'},
+      {id:'stethoscope', name:'Stethoscope',     x:74, y:28, s:25, r:12, line:'Hold the chest piece and you hear the engine, not a heart.'},
+      {id:'chart',       name:'Patient Chart',   x:30, y:72, s:24, r:-12, line:'Every chart ends with the same note: discharged to the sea.'},
+      {id:'pills',       name:'Pill Tin',        x:64, y:80, s:23, r:0,  line:'Count them. There are forty, and one empty slot.'},
+      {id:'tonic',       name:'Tonic Jar',       x:86, y:54, s:22, r:8,  line:'The jar is sealed. Something inside is still moving.'},
+    ],
+    decos:[
+      {i:'bed',x:18,y:52,s:34,r:-4},{i:'chair',x:82,y:44,s:26,r:0},{i:'window',x:48,y:16,s:24,r:0},
+      {i:'bucket',x:14,y:84,s:22,r:0},{i:'crate',x:60,y:88,s:24,r:6},{i:'web',x:88,y:14,s:20,r:0}
+    ]
+  },
+  {
+    no:'Chapter VII', title:'The Chapel', label:'ORLOP DECK · CHAPEL', time:95,
+    intro:'The chapel is below the waterline, where no window reaches. Every hymn book is open to the same page, and the page is blank.',
+    outro:'You close the book. The congregation stands, though the benches were empty, and sings one verse you almost remember.',
+    targets:[
+      {id:'cross',    name:'Iron Cross',    x:50, y:16, s:26, r:0,   line:'The cross is nailed upside down. No one has noticed.'},
+      {id:'hymnbook', name:'Hymn Book',     x:28, y:66, s:25, r:-14, line:'Page forty-nine is blank. So is every other page.'},
+      {id:'censer',   name:'Brass Censer',  x:70, y:58, s:25, r:10,  line:'The incense is cold, but the smoke still rises.'},
+      {id:'chalice',  name:'Silver Chalice',x:18, y:40, s:24, r:0,   line:'The cup is empty and warm. It has just been set down.'},
+      {id:'veil',     name:'Bridal Veil',   x:82, y:30, s:24, r:-8,  line:'A bridal veil, folded neatly on the altar rail.'},
+      {id:'votive',   name:'Votive Candle', x:42, y:80, s:23, r:0,   line:'One candle is lit. The flame leans toward the door.'},
+    ],
+    decos:[
+      {i:'chair',x:14,y:60,s:26,r:0},{i:'plank',x:44,y:44,s:28,r:12},{i:'ladder',x:86,y:70,s:26,r:0},
+      {i:'crate',x:60,y:88,s:24,r:0},{i:'barrel',x:16,y:16,s:26,r:0},{i:'web',x:78,y:12,s:20,r:0}
+    ]
+  },
+  {
+    no:'Chapter VIII', title:"The Captain's Quarters", label:'UPPER DECK · CAPTAIN', time:100,
+    intro:"The captain's door was never locked. His log ends on the same sentence, written forty times, in forty different hands.",
+    outro:'The last line is in your handwriting. It says: the ferry does not need a captain. It needs a passenger who will stay.',
+    targets:[
+      {id:'sextant',  name:'Sextant',        x:22, y:30, s:25, r:-10, line:'The mirrors show a sky with no stars in it.'},
+      {id:'logbook',  name:"Captain's Log",  x:50, y:70, s:26, r:6,   line:'The last page is dated tomorrow.'},
+      {id:'tobacco',  name:'Smoking Pipe',   x:76, y:72, s:24, r:-14, line:'The pipe is still lit. The smoke goes down, not up.'},
+      {id:'medal',    name:'War Medal',      x:68, y:24, s:23, r:0,   line:'For bravery. The name has been scratched away.'},
+      {id:'spyglass', name:'Spyglass',       x:36, y:48, s:26, r:22,  line:'Through it, the shore is close enough to touch.'},
+      {id:'quill',    name:'Ink Quill',      x:86, y:44, s:22, r:16,  line:'The ink on the nib has not dried.'},
+    ],
+    decos:[
+      {i:'crate',x:14,y:70,s:28,r:-4},{i:'chair',x:84,y:56,s:26,r:0},{i:'plank',x:30,y:16,s:30,r:0},
+      {i:'window',x:60,y:40,s:24,r:0},{i:'web',x:88,y:12,s:20,r:0},{i:'barrel',x:20,y:20,s:26,r:0}
+    ]
+  },
+  {
+    no:'Chapter IX', title:"The Children's Cabin", label:'CABIN 3 · THE CHILDREN', time:100,
+    intro:'Six small beds, six sets of clothes, six pairs of shoes lined up by the door. The children are not here, but the game they were playing is still on the floor.',
+    outro:'You put the last toy back in its place. Somewhere under the deck, six children stop counting and start laughing.',
+    targets:[
+      {id:'doll',     name:'Cloth Doll',     x:20, y:62, s:25, r:-12, line:'The doll dress matches the girl in Cabin 7.'},
+      {id:'marble',   name:'Glass Marble',   x:46, y:82, s:20, r:0,   line:'Still rolling. It never reaches the wall.'},
+      {id:'kite',     name:'Paper Kite',     x:70, y:26, s:26, r:14,  line:'The string goes up through the ceiling and keeps going.'},
+      {id:'soldier',  name:'Tin Soldier',    x:84, y:66, s:22, r:0,   line:'One leg is missing. He stands anyway.'},
+      {id:'musicbox', name:'Music Box',      x:34, y:30, s:25, r:-6,  line:'It plays four notes, then waits for you to turn it again.'},
+      {id:'chalk',    name:'Chalk',          x:60, y:54, s:21, r:28,  line:'A hopscotch grid, drawn on the floor, ending at a door.'},
+    ],
+    decos:[
+      {i:'bed',x:16,y:48,s:30,r:-4},{i:'chair',x:80,y:40,s:24,r:0},{i:'crate',x:24,y:86,s:24,r:0},
+      {i:'window',x:54,y:20,s:24,r:0},{i:'web',x:88,y:12,s:20,r:0},{i:'bucket',x:66,y:86,s:22,r:0}
+    ]
+  },
+  {
+    no:'Chapter X', title:'The Engine of Fog', label:'KEEL · THE ENGINE', time:110,
+    intro:'Below the last deck, under the waterline, the fog is made. The engine has no fire, no coal, and no moving parts, but it is working.',
+    outro:'You touch the wheel. The fog thins for the first time in three nights. Behind you, the pier is waiting—and someone is standing on it, holding a brass key.',
+    targets:[
+      {id:'gear',      name:'Turning Gear',  x:18, y:34, s:25, r:0,   line:'The gear turns, though nothing drives it.'},
+      {id:'piston',    name:'Piston',        x:44, y:68, s:26, r:-10, line:'The piston moves in and out like breathing.'},
+      {id:'ember',     name:'Cold Ember',    x:70, y:74, s:24, r:0,   line:'A single ember, burning without fuel.'},
+      {id:'mask',      name:'Ferryman Mask', x:84, y:30, s:23, r:0,   line:'A ferryman mask. It fits you exactly.'},
+      {id:'hourglass', name:'Hourglass',     x:30, y:20, s:24, r:12,  line:'The sand falls upward.'},
+      {id:'helm',      name:'Ship Wheel',    x:56, y:44, s:26, r:-16, line:'The wheel is warm. Someone let go of it just now.'},
+    ],
+    decos:[
+      {i:'chain',x:86,y:54,s:28,r:-10},{i:'barrel',x:16,y:62,s:30,r:-4},{i:'plank',x:36,y:16,s:30,r:0},
+      {i:'ladder',x:66,y:40,s:26,r:0},{i:'crate',x:28,y:86,s:24,r:0},{i:'web',x:78,y:12,s:20,r:0}
+    ]
+  },
+];
+
+// M2-B2：每章场景色调（[高光色, 次光色, 上/中/下渐变]）
+const TINTS = [
+  {a:'217,176,106', b:'63,94,110',  c1:'#1b2635', c2:'#121a26', c3:'#0a0f17'},
+  {a:'95,158,154',  b:'58,90,82',   c1:'#152321', c2:'#101b1a', c3:'#080f0e'},
+  {a:'217,140,80',  b:'140,80,60',  c1:'#261b18', c2:'#1a1210', c3:'#0d0908'},
+  {a:'224,190,120', b:'120,70,60',  c1:'#241d1a', c2:'#191412', c3:'#0c0908'},
+  {a:'200,110,70',  b:'90,40,35',   c1:'#26160f', c2:'#190f0b', c3:'#0b0605'},
+  {a:'150,200,190', b:'70,110,120', c1:'#162222', c2:'#101818', c3:'#080c0d'},
+  {a:'170,150,220', b:'80,70,120',  c1:'#1d1a2a', c2:'#14111d', c3:'#0a080f'},
+  {a:'230,210,150', b:'110,90,60',  c1:'#241f16', c2:'#19150f', c3:'#0b0907'},
+  {a:'220,160,160', b:'110,70,100', c1:'#241a22', c2:'#191117', c3:'#0b070a'},
+  {a:'240,120,60',  b:'120,40,30',  c1:'#2a140d', c2:'#1a0c08', c3:'#0b0503'},
+];
+
+const HINTS_FREE = 0;
+
+// ---------- 船舱装饰（M2 装饰系统） ----------
+const DECOR_POOL = [
+  {id:'lanternString', name:'Paper Lantern String', icon:'lantern'},
+  {id:'shellChime',    name:'Shell Wind Chime',     icon:'shell'},
+  {id:'letterFrame',   name:'Red Letter Frame',     icon:'letter'},
+  {id:'brassBell',     name:'Brass Bell',           icon:'bell'},
+  {id:'compassShelf',  name:'Compass Shelf',        icon:'compass'},
+  {id:'craneMobile',   name:'Paper Crane Mobile',   icon:'crane'},
+  {id:'anchorHook',    name:'Anchor Coat Hook',     icon:'anchor'},
+  {id:'mirrorShard',   name:'Mirror Shard',         icon:'mirror'},
+  {id:'coinBowl',      name:'Coin Bowl',            icon:'coin'},
+];
+const DECOR_KEY='lj_t004_decor_v1';
+
+// ---------- 状态 ----------
+const G = {
+  run:'', chapterIdx:0, state:'idle', time:0, score:0, runScore:0, found:0,
+  data:null, targets:[], hintsUsed:0, adTime:false, wrong:0, adSeq:0, decorUnlocked:[],
+  cleared:[], maxCh:0,
+};
+
+// M2-B2：章节进度（解锁 / 已通关），跨局保留
+const PROGRESS_KEY='lj_t004_progress_v1';
+const ROMAN=['','I','II','III','IV','V','VI','VII','VIII','IX','X'];
+function loadProgress(){
+  G.cleared=[]; G.maxCh=0;
+  try{
+    const p=JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null');
+    if(p && Array.isArray(p.cleared)){
+      G.cleared=p.cleared.filter(n=>Number.isInteger(n)&&n>=0&&n<CHAPTERS.length);
+      G.maxCh=Math.min(CHAPTERS.length-1, Math.max(0, p.maxCh|0, ...G.cleared.map(i=>i+1)));
+    }
+  }catch(e){ G.cleared=[]; G.maxCh=0; }
+}
+function saveProgress(){
+  try{ localStorage.setItem(PROGRESS_KEY, JSON.stringify({cleared:G.cleared, maxCh:G.maxCh, updated:Date.now()})); }catch(e){}
+}
+
+// ---------- 埋点 ----------
+const LOG_KEY='lj_t004_telemetry_v1';
+const SessionLog=(()=>{
+  let all=[];
+  try{ all=JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ all=[]; }
+  const save=()=>{ try{ localStorage.setItem(LOG_KEY, JSON.stringify(all.slice(-500))); }catch(e){} };
+  const count=()=>{ const el=$('logCount'); if(el) el.textContent=all.length; };
+  function line(rec){
+    const body=$('logBody'); if(!body) return;
+    const div=document.createElement('div'); div.className='ev';
+    div.innerHTML=`<b>[${rec.ts} ${rec.run}]</b> ${rec.evt} <span class="d">${JSON.stringify(rec.data)}</span>`;
+    body.appendChild(div);
+    while(body.children.length>200) body.removeChild(body.firstChild);
+    body.scrollTop=body.scrollHeight;
+  }
+  function push(rec){ all.push(rec); if(all.length>500) all.shift(); save(); line(rec); count(); }
+  function renderAll(){ const b=$('logBody'); if(b) b.innerHTML=''; all.forEach(line); count(); }
+  function copy(){
+    const json=JSON.stringify(all,null,1);
+    const ok=()=>{ const t=$('logTitle'); if(t){ const old=t.textContent; t.textContent='COPIED '+all.length; setTimeout(()=>t.textContent=old,1500); } };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(json).then(ok).catch(fallback); }
+    else fallback();
+    function fallback(){
+      const ta=document.createElement('textarea'); ta.value=json; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); ok(); }catch(e){ window.prompt('Copy telemetry JSON:', json); }
+      ta.remove();
+    }
+  }
+  function clear(){ all=[]; save(); const b=$('logBody'); if(b) b.innerHTML=''; count(); }
+  return {push, renderAll, copy, clear};
+})();
+function nowHMS(){ const d=new Date(); return d.toTimeString().slice(0,8); }
+function log(evt, data){
+  const rec={ts:nowHMS(), run:G.run||'-', gt:+G.time.toFixed(1), evt, data};
+  console.log('[telemetry]', rec.run, evt, data);
+  SessionLog.push(rec);
+}
+
+// ---------- 性能 ----------
+const Perf={
+  total:0, frames:0, acc:0, fps:0, minFps:999, sumMs:0, maxMs:0, slow:0, uiT:0,
+  tick(dt, entities){
+    const ms=dt*1000; this.total++; this.frames++; this.acc+=dt; this.sumMs+=ms;
+    if(ms>this.maxMs) this.maxMs=ms;
+    if(ms>50) this.slow++;
+    if(this.acc>=1){ this.fps=Math.round(this.frames/this.acc); if(this.fps<this.minFps) this.minFps=this.fps; this.frames=0; this.acc=0; }
+    this.uiT+=dt;
+    if(this.uiT>=.5){
+      this.uiT=0;
+      const heap=performance.memory?Math.round(performance.memory.usedJSHeapSize/1048576)+'MB':'-';
+      $('perf').textContent=`FPS ${this.fps||'-'} | avg ${(this.sumMs/this.total).toFixed(1)}ms | max ${this.maxMs.toFixed(0)}ms | slow>50ms ${this.slow} | objects ${entities} | JS heap ${heap}`;
+    }
+  },
+  summary(){
+    return {avgFps:+(this.total/(this.sumMs/1000)).toFixed(1), minFps:this.minFps===999?null:this.minFps,
+      avgMs:+(this.sumMs/this.total).toFixed(1), maxMs:+this.maxMs.toFixed(1), slow:this.slow, samples:this.total};
+  }
+};
+
+// ---------- 音效 ----------
+let AC=null;
+function ensureAudio(){
+  if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ AC=null; } }
+  if(AC && AC.state==='suspended') AC.resume();
+}
+function tone(freq, dur=.1, type='sine', vol=.05, delay=0){
+  if(!AC) return;
+  const t=AC.currentTime+delay, o=AC.createOscillator(), g=AC.createGain();
+  o.type=type; o.frequency.value=freq; g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t+dur+.02);
+}
+function sfxFind(){ tone(880,.09,'triangle',.05); tone(1320,.07,'sine',.025,.06); }
+function sfxWrong(){ tone(150,.12,'sine',.04); }
+function sfxWin(){ [523,659,784,1047].forEach((f,i)=>tone(f,.16,'triangle',.04,i*.1)); }
+function sfxFail(){ tone(170,.2,'sawtooth',.04); tone(120,.24,'sawtooth',.03,.14); }
+
+// ---------- 渲染章节 ----------
+function loadChapter(idx){
+  const ch=CHAPTERS[idx];
+  G.chapterIdx=idx; G.data=ch; G.score=0; G.found=0; G.hintsUsed=0; G.adTime=false; G.wrong=0;
+  G.time=ch.time; G.state='intro'; G.adSeq++;
+  $('scene').dataset.ch=String(idx+1);
+  const tint=TINTS[idx]||TINTS[0];
+  const sc=$('scene');
+  sc.style.setProperty('--ca',`rgba(${tint.a},.18)`);
+  sc.style.setProperty('--cb',`rgba(${tint.b},.20)`);
+  sc.style.setProperty('--c1',tint.c1);
+  sc.style.setProperty('--c2',tint.c2);
+  sc.style.setProperty('--c3',tint.c3);
+  sc.style.setProperty('--cr',tint.a);
+  $('sceneLabel').textContent=ch.label;
+  $('chapterTag').textContent=ch.no.toUpperCase()+' / '+ROMAN[CHAPTERS.length];
+  $('storyText').textContent=ch.intro;
+  renderSceneArt(idx); renderObjects(ch); renderDecos(ch); renderClues(ch); updateHUD();
+  log('chapter_load',{chapter:idx+1, title:ch.title, targets:ch.targets.length, time:ch.time});
+  showModal(`
+    <h2>${ch.no} · ${ch.title}</h2>
+    <p class="sub">${ch.intro}</p>
+    <div class="rules"><b>Find six objects.</b><br>Tap an object in the scene to collect it.<br>A wrong tap costs 3 seconds.<br>Stuck? Watch a short ad for a lantern hint.</div>
+    <div class="modalBtns"><button id="enterBtn">Enter the cabin</button></div>
+  `);
+  $('enterBtn').onclick=()=>{ ensureAudio(); hideModal(); beginChapter(); };
+}
+
+function beginChapter(){
+  G.state='play';
+  log('chapter_start',{chapter:G.chapterIdx+1, title:G.data.title});
+}
+
+// M2-B3：矢量船舱场景层（按章节轮换 3 种构图，约占场景 30%）
+const SCENE_VARIANTS=[
+  `<svg viewBox="0 0 400 460" preserveAspectRatio="xMidYMid slice">
+    <path class="ln2" d="M0,44 Q200,26 400,44"/>
+    <path class="ln2" d="M28,44 C24,158 20,258 16,358"/>
+    <path class="ln2" d="M108,36 C104,150 102,254 98,356"/>
+    <path class="ln2" d="M292,36 C296,150 298,254 302,356"/>
+    <path class="ln2" d="M372,44 C376,158 380,258 384,358"/>
+    <path class="gold" d="M0,352 L400,352"/>
+    <path class="ln" d="M210,44 L210,96"/>
+    <circle class="halo" cx="210" cy="120" r="13"/>
+    <path class="ln" d="M198,96 L222,96 L228,114 L192,114 Z"/>
+    <circle class="gold" cx="210" cy="119" r="2.6"/>
+    <path class="dark" d="M248,300 L392,300 L392,352 L248,352 Z"/>
+    <path class="gold" d="M254,300 Q320,292 386,300"/>
+    <path class="ln2" d="M268,352 L268,394 M372,352 L372,394"/>
+    <path class="ln2" d="M0,402 L400,402 M52,460 L152,352 M196,460 L206,352 M352,460 L250,352"/>
+  </svg>`,
+  `<svg viewBox="0 0 400 460" preserveAspectRatio="xMidYMid slice">
+    <path class="ln2" d="M0,40 Q200,30 400,40"/>
+    <path class="ln2" d="M56,40 C52,156 48,256 44,356"/>
+    <path class="ln2" d="M196,32 C194,148 194,252 194,354"/>
+    <path class="ln2" d="M344,40 C348,156 352,256 356,356"/>
+    <path class="gold" d="M0,350 L400,350"/>
+    <path class="ln" d="M304,40 L304,96"/>
+    <circle class="halo" cx="304" cy="120" r="13"/>
+    <path class="ln" d="M292,96 L316,96 L322,114 L286,114 Z"/>
+    <circle class="gold" cx="304" cy="119" r="2.6"/>
+    <path class="dark" d="M18,286 L150,286 L150,350 L18,350 Z"/>
+    <path class="gold" d="M24,286 Q84,278 144,286"/>
+    <path class="ln2" d="M30,350 L30,392 M138,350 L138,392"/>
+    <path class="ln" d="M252,318 L332,318 L332,352 L252,352 Z"/>
+    <path class="ln2" d="M252,334 L332,334 M271,318 L271,352 M313,318 L313,352"/>
+    <path class="ln2" d="M0,400 L400,400 M74,460 L168,350 M212,460 L222,350 M372,460 L266,350"/>
+  </svg>`,
+  `<svg viewBox="0 0 400 460" preserveAspectRatio="xMidYMid slice">
+    <path class="ln2" d="M0,48 Q200,34 400,48"/>
+    <path class="ln2" d="M64,48 C60,160 56,258 52,356"/>
+    <path class="ln2" d="M160,38 C158,152 158,254 158,354"/>
+    <path class="ln2" d="M240,38 C242,152 242,254 242,354"/>
+    <path class="ln2" d="M336,48 C340,160 344,258 348,356"/>
+    <path class="gold" d="M0,354 L400,354"/>
+    <path class="ln" d="M200,48 L200,96"/>
+    <circle class="halo" cx="200" cy="119" r="11"/>
+    <path class="ln" d="M189,96 L211,96 L216,113 L184,113 Z"/>
+    <circle class="gold" cx="200" cy="118" r="2.4"/>
+    <path class="ln" d="M330,48 L330,96"/>
+    <circle class="halo" cx="330" cy="119" r="11"/>
+    <path class="ln" d="M319,96 L341,96 L346,113 L314,113 Z"/>
+    <circle class="gold" cx="330" cy="118" r="2.4"/>
+    <path class="dark" d="M44,302 L196,302 L196,354 L44,354 Z"/>
+    <path class="gold" d="M50,302 Q120,294 190,302"/>
+    <path class="ln2" d="M58,354 L58,396 M182,354 L182,396"/>
+    <path class="ln" d="M268,300 L360,300 L360,354 L268,354 Z"/>
+    <path class="ln2" d="M268,316 L360,316 M314,300 L314,354"/>
+    <path class="ln2" d="M0,404 L400,404 M96,460 L184,354 M232,460 L242,354 M356,460 L262,354"/>
+  </svg>`,
+];
+function renderSceneArt(idx){
+  sceneArtEl.innerHTML=SCENE_VARIANTS[idx%SCENE_VARIANTS.length];
+  log('scene_art',{chapter:idx+1, variant:idx%SCENE_VARIANTS.length+1});
+}
+
+function renderObjects(ch){
+  objectsEl.innerHTML='';
+  G.targets=ch.targets.map(t=>({...t, found:false, el:null}));
+  G.targets.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='target'; b.type='button';
+    b.style.left=t.x+'%'; b.style.top=t.y+'%';
+    b.style.setProperty('--s', t.s+'px'); b.style.setProperty('--r', t.r+'deg');
+    b.innerHTML=iconSvg(t.id); b.setAttribute('aria-label', t.name);
+    b.addEventListener('click', ev=>{ ev.stopPropagation(); findTarget(t.id); });
+    t.el=b; objectsEl.appendChild(b);
+  });
+}
+function renderDecos(ch){
+  decosEl.innerHTML='';
+  ch.decos.forEach(d=>{
+    const s=document.createElement('span');
+    s.className='deco'; s.innerHTML=iconSvg(d.i);
+    s.style.left=d.x+'%'; s.style.top=d.y+'%';
+    s.style.setProperty('--s', d.s+'px'); s.style.setProperty('--r', d.r+'deg');
+    decosEl.appendChild(s);
+  });
+}
+function renderClues(ch){
+  cluesEl.innerHTML='';
+  ch.targets.forEach(t=>{
+    const d=document.createElement('div');
+    d.className='clue'; d.dataset.id=t.id;
+    d.innerHTML=`<span class="e">${iconSvg(t.id)}</span><span class="n">${t.name}</span>`;
+    cluesEl.appendChild(d);
+  });
+}
+
+// ---------- 玩法 ----------
+function findTarget(id){
+  if(G.state!=='play') return;
+  const t=G.targets.find(x=>x.id===id);
+  if(!t || t.found) return;
+  t.found=true; G.found++;
+  G.score+=100;
+  t.el.classList.add('found');
+  const clue=cluesEl.querySelector(`.clue[data-id="${id}"]`); if(clue) clue.classList.add('found');
+  $('storyText').textContent=t.line;
+  ringAt(t.el);
+  sfxFind();
+  log('find',{chapter:G.chapterIdx+1, object:id, name:t.name, found:G.found+'/'+G.targets.length, score:G.score});
+  updateHUD();
+  if(G.found>=G.targets.length) setTimeout(chapterClear,520);
+}
+
+function wrongClick(clientX, clientY){
+  if(G.state!=='play') return;
+  G.wrong++; G.time=Math.max(0,G.time-3);
+  sfxWrong();
+  const r=scene.getBoundingClientRect();
+  const m=document.createElement('div');
+  m.className='wrongMark'; m.textContent='×';
+  m.style.left=(clientX-r.left)+'px'; m.style.top=(clientY-r.top)+'px';
+  scene.appendChild(m); setTimeout(()=>m.remove(),700);
+  log('wrong_click',{chapter:G.chapterIdx+1, penalty:3, remaining:+G.time.toFixed(1), wrong:G.wrong});
+  updateHUD();
+  if(G.time<=0) fail('timeout');
+}
+
+function ringAt(el){
+  const r=el.getBoundingClientRect(), sr=scene.getBoundingClientRect();
+  const ring=document.createElement('div');
+  ring.className='ring';
+  ring.style.left=(r.left-sr.left+r.width/2)+'px';
+  ring.style.top=(r.top-sr.top+r.height/2)+'px';
+  scene.appendChild(ring); setTimeout(()=>ring.remove(),700);
+}
+
+// ---------- 提示 ----------
+function hintFlow(){
+  if(G.state!=='play') return;
+  log('hint_ad_offer',{chapter:G.chapterIdx+1, hintsUsed:G.hintsUsed});
+  G.state='ad';
+  const seq=++G.adSeq;
+  showModal(`<h2>A light in the fog…</h2><p class="sub">Greybox ad · hint in 3 seconds</p><div class="adCount" id="adCount">3</div>`);
+  let n=3;
+  const timer=setInterval(()=>{
+    if(G.adSeq!==seq){ clearInterval(timer); return; }
+    n--;
+    if(n<=0){
+      clearInterval(timer);
+      G.hintsUsed++;
+      G.state='play';
+      hideModal();
+      const left=G.targets.filter(t=>!t.found);
+      if(left.length){
+        const pick=left[Math.floor(Math.random()*left.length)];
+        pick.el.classList.add('hint');
+        setTimeout(()=>pick.el.classList.remove('hint'),2600);
+        log('hint_used',{chapter:G.chapterIdx+1, object:pick.id, hintsUsed:G.hintsUsed});
+        $('storyText').textContent='The lantern leans toward something in the dark.';
+      }
+      log('hint_ad_watched',{chapter:G.chapterIdx+1});
+    } else {
+      const el=$('adCount'); if(el) el.textContent=n;
+    }
+  },1000);
+}
+
+// ---------- 结算 ----------
+function chapterClear(){
+  if(G.state!=='play') return;
+  G.state='clear';
+  const ch=G.data;
+  const timeBonus=Math.round(G.time*3);
+  G.score+=timeBonus; G.runScore+=G.score;
+  const lanterns=(G.hintsUsed===0 && G.time/ch.time>=.4)?3:(G.time/ch.time>=.15?2:1);
+  sfxWin();
+  const firstClear=!G.cleared.includes(G.chapterIdx);
+  if(firstClear){
+    G.cleared.push(G.chapterIdx);
+    G.cleared.sort((a,b)=>a-b);
+    if(G.chapterIdx+1<CHAPTERS.length) G.maxCh=Math.min(CHAPTERS.length-1, Math.max(G.maxCh, G.chapterIdx+1));
+    saveProgress();
+  }
+  log('chapter_clear',{chapter:G.chapterIdx+1, title:ch.title, timeLeft:+G.time.toFixed(1), timeBonus, score:G.score, runScore:G.runScore, hints:G.hintsUsed, wrong:G.wrong, lanterns, cleared:G.cleared.length, unlocked:G.maxCh+1, perf:Perf.summary()});
+  if(firstClear) log('chapter_unlock',{chapter:G.chapterIdx+1, next:G.chapterIdx+2<=CHAPTERS.length?G.chapterIdx+2:null, maxCh:G.maxCh+1});
+  const options=shuffle(DECOR_POOL.filter(d=>!G.decorUnlocked.includes(d.id))).slice(0,3);
+  log('deco_offer',{chapter:G.chapterIdx+1, options:options.map(o=>o.id)});
+  if(options.length) showDecorOffer(options, lanterns, timeBonus);
+  else showClearResult(lanterns, timeBonus);
+}
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function updateDecorHud(){ const el=$('hudDecor'); if(el) el.textContent=G.decorUnlocked.length+'/'+DECOR_POOL.length; }
+
+function showDecorOffer(options, lanterns, timeBonus){
+  const ch=G.data;
+  showModal(`
+    <h2>Keep one thing</h2>
+    <p class="sub">${ch.no} is clear. Choose a decoration for the ferry.</p>
+    <div class="decorChoices">${options.map(o=>`<button class="decorCard" type="button" data-deco="${o.id}">${iconSvg(o.icon)}<span class="n">${o.name}</span></button>`).join('')}</div>
+    <div class="modalBtns"><button id="skipDeco" class="ghost">Skip</button></div>
+  `);
+  $('modal').querySelectorAll('.decorCard').forEach(btn=>{
+    btn.onclick=()=>{
+      const id=btn.dataset.deco;
+      G.decorUnlocked.push(id);
+      try{ localStorage.setItem(DECOR_KEY, JSON.stringify(G.decorUnlocked)); }catch(e){}
+      log('deco_pick',{chapter:G.chapterIdx+1, decor:id, total:G.decorUnlocked.length});
+      updateDecorHud();
+      showClearResult(lanterns, timeBonus);
+    };
+  });
+  $('skipDeco').onclick=()=>{ log('deco_skip',{chapter:G.chapterIdx+1}); showClearResult(lanterns, timeBonus); };
+}
+
+function showClearResult(lanterns, timeBonus){
+  const ch=G.data;
+  const last=G.chapterIdx>=CHAPTERS.length-1;
+  showModal(`
+    <h2>${ch.no} · Complete</h2>
+    <div class="lanterns">${'<i></i>'.repeat(lanterns)}${'<i class="off"></i>'.repeat(3-lanterns)}</div>
+    <div class="storyCard">${ch.outro}</div>
+    <div class="statRow"><span>Found</span><b>${G.targets.length}/${G.targets.length}</b></div>
+    <div class="statRow"><span>Time left</span><b>${Math.ceil(G.time)}s (+${timeBonus})</b></div>
+    <div class="statRow"><span>Chapter score</span><b>${G.score}</b></div>
+    <div class="statRow"><span>Cabin decor</span><b>${G.decorUnlocked.length}/${DECOR_POOL.length}</b></div>
+    <div class="statRow"><span>Run score</span><b>${G.runScore}</b></div>
+    <div class="modalBtns"><button id="nextBtn">${last?'Step onto the deck':'Next chapter'}</button></div>
+  `);
+  $('nextBtn').onclick=()=>{
+    hideModal();
+    if(last) ending(); else loadChapter(G.chapterIdx+1);
+  };
+}
+
+function fail(reason){
+  if(G.state!=='play') return;
+  G.state='fail';
+  sfxFail();
+  log('chapter_fail',{reason, chapter:G.chapterIdx+1, found:G.found+'/'+G.targets.length, time:+G.time.toFixed(1)});
+  const canAd=reason==='timeout' && !G.adTime;
+  log('ad_offer',{reason, canAd});
+  showModal(`
+    <h2>The fog closes in</h2>
+    <p>${reason==='timeout'?'Time is up. The lantern is still warm.':'The chapter has ended early.'}</p>
+    <div class="modalBtns">
+      ${canAd?'<button id="adBtn">Watch ad · +20s</button>':''}
+      <button id="retryBtn" class="ghost">Retry chapter</button>
+    </div>
+  `);
+  $('retryBtn').onclick=()=>{ hideModal(); loadChapter(G.chapterIdx); };
+  if(canAd) $('adBtn').onclick=()=>continueAd();
+}
+
+function continueAd(){
+  log('ad_start',{reason:'timeout'});
+  const seq=++G.adSeq;
+  showModal(`<h2>The lantern flickers…</h2><p class="sub">Greybox ad · 3 seconds</p><div class="adCount" id="adCount">3</div>`);
+  let n=3;
+  const timer=setInterval(()=>{
+    if(G.adSeq!==seq){ clearInterval(timer); return; }
+    n--;
+    if(n<=0){
+      clearInterval(timer);
+      G.adTime=true; G.time+=20; G.state='play';
+      log('ad_watched',{reason:'timeout', time:+G.time.toFixed(1)});
+      hideModal(); updateHUD();
+      $('storyText').textContent='The lantern holds. Twenty more seconds.';
+    } else {
+      const el=$('adCount'); if(el) el.textContent=n;
+    }
+  },1000);
+}
+
+function ending(){
+  G.state='idle';
+  log('session_end',{runScore:G.runScore, chapters:CHAPTERS.length, hints:G.hintsUsed});
+  showModal(`
+    <h1>NIGHT FERRY</h1>
+    <p class="sub">The ferry does not dock. It never did.</p>
+    <div class="storyCard">You are the ferryman now. The next passenger is already at the pier—and she is holding a brass key.</div>
+    <div class="statRow"><span>Chapters cleared</span><b>${G.cleared.length}/${CHAPTERS.length}</b></div>
+    <div class="statRow"><span>Cabin decor</span><b>${G.decorUnlocked.length}/${DECOR_POOL.length}</b></div>
+    <div class="statRow"><span>Final score</span><b>${G.runScore}</b></div>
+    <div class="modalBtns"><button id="againBtn">Sail again</button><button id="endMapBtn" class="ghost">Chapter map</button></div>
+  `);
+  $('againBtn').onclick=()=>{ hideModal(); startRun(); };
+  $('endMapBtn').onclick=()=>openMap();
+}
+
+// ---------- M2-B2：章节地图 ----------
+function openMap(){
+  log('map_open',{cleared:G.cleared.length, total:CHAPTERS.length, unlocked:G.maxCh+1});
+  const cards=CHAPTERS.map((c,i)=>{
+    const open=i<=G.maxCh, done=G.cleared.includes(i);
+    return `<button class="mapCard${open?'':' locked'}${done?' done':''}" type="button" data-i="${i}" ${open?'':'disabled'}>
+      <b>${ROMAN[i+1]}</b><span>${c.title}</span></button>`;
+  }).join('');
+  $('mapModal').innerHTML=`
+    <h2>Chapter map</h2>
+    <p class="sub">Cleared ${G.cleared.length} / ${CHAPTERS.length}. Chapters unlock in order.</p>
+    <div class="mapGrid">${cards}</div>
+    <div class="modalBtns"><button id="mapClose" class="ghost">Close</button></div>
+  `;
+  $('mapBg').classList.remove('hidden');
+  $('mapClose').onclick=()=>$('mapBg').classList.add('hidden');
+  $('mapModal').querySelectorAll('.mapCard:not(.locked)').forEach(btn=>{
+    btn.onclick=()=>{
+      const i=+btn.dataset.i;
+      $('mapBg').classList.add('hidden');
+      hideModal();
+      log('chapter_select',{chapter:i+1, from:G.chapterIdx+1});
+      loadChapter(i);
+    };
+  });
+}
+
+// ---------- HUD / 弹窗 ----------
+function updateHUD(){
+  const ch=G.data||CHAPTERS[0];
+  $('hudCh').textContent=(G.chapterIdx+1)+'/'+CHAPTERS.length;
+  $('hudTime').textContent=Math.max(0,Math.ceil(G.time));
+  $('hudFound').textContent=G.found+'/'+(ch.targets?ch.targets.length:6);
+  $('hudScore').textContent=G.runScore+G.score;
+}
+function showModal(html){ $('modal').innerHTML=html; $('modalBg').classList.remove('hidden'); }
+function hideModal(){ $('modalBg').classList.add('hidden'); }
+
+function startScreen(){
+  G.state='idle';
+  showModal(`
+    <h1>NIGHT FERRY</h1>
+    <p class="sub">A hidden-object mystery on a ship that never docks.</p>
+    <div class="rules">
+      <b>FIND SIX OBJECTS IN EACH CHAPTER.</b><br>
+      Tap an object to collect it and hear its story.<br>
+      Wrong taps cost 3 seconds.<br>
+      Stuck? Watch a short ad for a lantern hint.<br>
+      Ten chapters, one ship. Find out why the ferry cannot reach the shore.
+    </div>
+    <div class="modalBtns"><button id="startBtn">Board the ferry</button><button id="startMapBtn" class="ghost">Chapter map</button></div>
+  `);
+  $('startBtn').onclick=()=>{ ensureAudio(); hideModal(); startRun(); };
+  $('startMapBtn').onclick=()=>openMap();
+}
+
+function startRun(){
+  G.run='R'+Math.random().toString(36).slice(2,6).toUpperCase();
+  G.runScore=0;
+  log('session_start',{mode:'graybox', version:'M2-B3.0', game:'night_ferry', chapters:CHAPTERS.length});
+  loadChapter(0);
+}
+
+// ---------- 循环 ----------
+let last=performance.now();
+function loop(t){
+  const dt=Math.min(.05,(t-last)/1000); last=t;
+  Perf.tick(dt, G.targets.filter(x=>!x.found).length);
+  if(G.state==='play'){
+    G.time-=dt;
+    if(G.time<=0){ G.time=0; updateHUD(); fail('timeout'); }
+    else if(Math.floor(G.time)!==Math.floor(G.time+dt)) updateHUD();
+  }
+  requestAnimationFrame(loop);
+}
+
+// ---------- 调试/验收 ----------
+function debugFind(){
+  if(G.state!=='play') return;
+  const t=G.targets.find(x=>!x.found);
+  if(t){ log('debug_find',{object:t.id, chapter:G.chapterIdx+1}); findTarget(t.id); }
+}
+function debugNext(){
+  if(G.state==='play'||G.state==='intro'||G.state==='fail'){ hideModal(); log('debug_jump',{to:G.chapterIdx+2}); if(G.chapterIdx+1<CHAPTERS.length) loadChapter(G.chapterIdx+1); }
+}
+$('hintBtn').onclick=()=>hintFlow();
+$('btnMap').onclick=()=>openMap();
+$('btnRestart').onclick=()=>{ if(G.state!=='idle'){ hideModal(); log('restart',{chapter:G.chapterIdx+1}); loadChapter(G.chapterIdx); } };
+$('btnLog').onclick=()=>{ const p=$('logPanel'); p.style.display=p.style.display==='none'?'block':'none'; };
+$('copyLog').onclick=()=>SessionLog.copy();
+$('clearLog').onclick=()=>SessionLog.clear();
+scene.addEventListener('click', e=>{
+  if(e.target.closest('.target')) return;
+  wrongClick(e.clientX, e.clientY);
+});
+addEventListener('keydown', e=>{
+  const k=e.key.toLowerCase();
+  if(k==='r'){ if(G.state!=='idle'){ hideModal(); log('restart',{chapter:G.chapterIdx+1, key:'R'}); loadChapter(G.chapterIdx); } }
+  if(k==='l'){ const p=$('logPanel'); p.style.display=p.style.display==='none'?'block':'none'; }
+  if(k==='m') openMap();
+  if(k==='n') debugNext();
+  if(k==='f') debugFind();
+});
+
+window.__Dtest={ G, startRun, loadChapter, beginChapter, debugFind, debugNext, openMap, Perf, CHAPTERS, ICONS, renderSceneArt };
+window.__Dver='M2-B3.0';
+
+try{ G.decorUnlocked=JSON.parse(localStorage.getItem(DECOR_KEY)||'[]'); }catch(e){ G.decorUnlocked=[]; }
+loadProgress();
+updateDecorHud();
+SessionLog.renderAll();
+if(new URLSearchParams(location.search).has('qa')){ startRun(); setTimeout(()=>{ hideModal(); beginChapter(); },60); } else { startScreen(); }
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
