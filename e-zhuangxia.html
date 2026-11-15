@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>妆匣 · 一日妆造师｜M2 垂直切片（LJ-T-005）</title>
+<style>
+  :root{
+    --paper:#f1e9dc; --paper2:#fbf6ec; --card:#fffaf2;
+    --ink:#3c332c; --muted:#8a7a6b; --faint:#b7a897;
+    --line:#e2d5c3; --line2:#d3c2ac;
+    --accent:#b4655a; --accent2:#8d6a4f; --gold:#b98c4a; --sage:#7f927f;
+    --shadow:0 10px 26px rgba(92,66,44,.12);
+    --serif:"Songti SC","Noto Serif SC","STSong","SimSun",serif;
+    --sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; min-height:100%;}
+  body{
+    background:
+      radial-gradient(900px 500px at 50% -8%, #fff9ee 0%, rgba(255,249,238,0) 62%),
+      radial-gradient(rgba(120,95,70,.045) 1px, transparent 1px),
+      linear-gradient(180deg,#f6efe4 0%, #eee3d3 100%);
+    background-size:auto, 16px 16px, auto;
+    color:var(--ink); font-family:var(--sans);
+    display:flex; justify-content:center;
+  }
+  #app{width:100%; max-width:430px; min-height:100dvh; display:flex; flex-direction:column; gap:10px; padding:12px 12px 20px;}
+  header{display:flex; flex-direction:column; gap:8px;}
+  .brandRow{display:flex; align-items:flex-end; justify-content:space-between; gap:10px;}
+  .brand{font-family:var(--serif); font-size:24px; font-weight:700; letter-spacing:5px; line-height:1;}
+  .brand span{display:block; margin-top:5px; font-family:var(--sans); font-size:10px; font-weight:400; letter-spacing:3px; color:var(--muted);}
+  .ver{font-size:10px; color:var(--faint); letter-spacing:1px; padding-bottom:2px;}
+  .hud{display:flex; gap:6px;}
+  .hudChip{flex:1; background:rgba(255,250,242,.82); border:1px solid var(--line); border-radius:11px; padding:7px 9px; font-size:10px; color:var(--muted); display:flex; justify-content:space-between; align-items:center; gap:4px;}
+  .hudChip b{font-size:13px; color:var(--ink); font-variant-numeric:tabular-nums;}
+  button.hudChip{font-family:var(--sans); cursor:pointer; min-height:36px;}
+  button.hudChip:active{transform:translateY(1px);}
+  #main{flex:1; display:flex; flex-direction:column; gap:10px; animation:fade .22s ease both;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+  footer{display:flex; justify-content:space-between; align-items:center; gap:8px; padding-top:4px; font-size:10px; color:var(--faint);}
+  footer button{background:none; border:none; color:var(--faint); font-size:10px; text-decoration:underline; cursor:pointer; font-family:var(--sans); padding:4px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);}
+  .pad{padding:13px 14px;}
+  .eyebrow{font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase;}
+  .muted{color:var(--muted);}
+  .small{font-size:11px; line-height:1.6;}
+  .serif{font-family:var(--serif);}
+  .btn{appearance:none; border:1px solid var(--line2); background:var(--paper2); color:var(--ink); border-radius:13px; min-height:46px; padding:0 16px; font-size:14px; font-family:var(--sans); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; transition:transform .12s, background .2s, opacity .2s;}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:var(--ink); border-color:var(--ink); color:#fbf6ec; letter-spacing:1px;}
+  .btn.accent{background:var(--accent); border-color:var(--accent); color:#fff8ef;}
+  .btn.ghost{background:transparent;}
+  .btn.block{width:100%;}
+  .btn[disabled]{opacity:.42; cursor:not-allowed; transform:none;}
+  .row{display:flex; gap:8px;}
+  .row > *{flex:1;}
+
+  /* 首页 */
+  .intro{position:relative; overflow:hidden; padding:16px 16px 14px; border-style:dashed; border-color:var(--line2);}
+  .intro::after{content:""; position:absolute; right:-26px; top:-30px; width:110px; height:110px; border:1px solid var(--line); border-radius:50%; opacity:.55;}
+  .intro h2{margin:2px 0 6px; font-family:var(--serif); font-size:20px; letter-spacing:2px; font-weight:700;}
+  .intro p{margin:0; font-size:12px; line-height:1.8; color:var(--muted);}
+  .intro .rule{height:1px; background:var(--line); margin:11px 0 9px;}
+  .intro .quote{font-family:var(--serif); font-size:13px; color:var(--accent2); letter-spacing:.5px;}
+  .listTitle{display:flex; justify-content:space-between; align-items:center; padding:2px 2px 0; font-size:11px; color:var(--muted); letter-spacing:1px;}
+  .listTitle b{color:var(--ink); font-size:12px;}
+  .commissionCard{display:flex; gap:12px; padding:11px; align-items:stretch; position:relative; overflow:hidden;}
+  .miniDoll{flex:0 0 84px; border-radius:12px; background:linear-gradient(180deg,#f7efe3,#eee2d1); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;}
+  .miniDoll svg{width:78px; height:132px; display:block;}
+  .cBody{flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; padding:2px 0;}
+  .cTop{display:flex; justify-content:space-between; align-items:baseline; gap:6px;}
+  .cTitle{font-family:var(--serif); font-size:17px; font-weight:700; letter-spacing:1px;}
+  .cNo{font-size:10px; color:var(--faint); letter-spacing:1px;}
+  .cMeta{font-size:10px; color:var(--muted); display:flex; gap:8px; flex-wrap:wrap;}
+  .cQuote{font-family:var(--serif); font-size:12px; color:var(--accent2); line-height:1.55; margin:1px 0 2px;}
+  .cFoot{margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .cFoot .btn{min-height:36px; padding:0 13px; font-size:12px; border-radius:10px;}
+  .stamp{display:inline-block; transform:rotate(-3deg); border:1.5px solid var(--accent); color:var(--accent); border-radius:7px; padding:3px 6px; font-family:var(--serif); font-size:10px; letter-spacing:1px; opacity:.86; background:rgba(255,250,242,.7);}
+  .stamp.gold{border-color:var(--gold); color:var(--gold);}
+
+  /* 委托页 */
+  .scene{position:relative; padding:12px; overflow:hidden;}
+  .mirror{position:relative; border-radius:13px; background:linear-gradient(180deg,#f8f1e5,#eee1cf); border:1px solid var(--line); min-height:236px; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .mirror::before{content:""; position:absolute; inset:8px; border:1px solid rgba(180,160,135,.35); border-radius:9px; pointer-events:none;}
+  .mirror::after{content:""; position:absolute; left:0; right:0; bottom:0; height:38%; background:linear-gradient(180deg,rgba(190,160,125,0),rgba(190,160,125,.16)); pointer-events:none;}
+  .mirror svg.doll{width:176px; height:300px; display:block; position:relative; z-index:2; filter:drop-shadow(0 8px 10px rgba(90,62,40,.10));}
+  .mirror .tag{position:absolute; left:10px; top:10px; z-index:3; font-size:10px; color:var(--muted); background:rgba(255,250,242,.82); border:1px solid var(--line); border-radius:99px; padding:3px 8px;}
+  .mirror .tag.right{left:auto; right:10px;}
+  .cHead{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:2px;}
+  .cHead h2{margin:0; font-family:var(--serif); font-size:21px; letter-spacing:1px;}
+  .cHead .who{font-size:11px; color:var(--muted); margin-top:3px;}
+  .quoteBox{font-family:var(--serif); font-size:14px; line-height:1.65; color:var(--ink); background:#fdf7ed; border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:9px 11px; margin:9px 0 2px;}
+  .secLabel{display:flex; justify-content:space-between; align-items:center; font-size:10px; letter-spacing:1.5px; color:var(--muted); margin:13px 1px 6px;}
+  .secLabel b{color:var(--ink); font-size:11px; letter-spacing:.5px;}
+  .detailGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:7px;}
+  .detail{appearance:none; font-family:var(--sans); text-align:left; background:var(--paper2); border:1px solid var(--line); border-radius:11px; padding:9px 8px; cursor:pointer; min-height:64px; display:flex; flex-direction:column; gap:5px; color:var(--ink);}
+  .detail .di{width:20px; height:20px; border:1px solid var(--line2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--accent2); font-family:var(--serif);}
+  .detail .dn{font-size:11px; line-height:1.4;}
+  .detail.read{border-color:var(--accent); background:#fff6ee;}
+  .detail.read .di{background:var(--accent); border-color:var(--accent); color:#fff8ef;}
+  .detailNote{font-size:11px; line-height:1.65; color:var(--muted); background:#fbf4e8; border:1px dashed var(--line2); border-radius:10px; padding:8px 10px; margin-top:7px; display:none;}
+  .detailNote.show{display:block;}
+  .qList{display:flex; flex-direction:column; gap:6px;}
+  .qOpt{appearance:none; text-align:left; font-family:var(--sans); background:var(--paper2); border:1px solid var(--line); border-radius:11px; padding:10px 11px; font-size:12px; color:var(--ink); cursor:pointer; display:flex; justify-content:space-between; gap:8px; align-items:center; min-height:42px;}
+  .qOpt:active{transform:translateY(1px);}
+  .qOpt .tagPreview{font-size:9px; color:var(--faint); letter-spacing:1px; white-space:nowrap;}
+  .qOpt.picked{border-color:var(--accent); background:#fff6ee;}
+  .qOpt.picked .tagPreview{color:var(--accent);}
+  .qOpt[disabled]{cursor:default; opacity:.55;}
+  .qOpt[disabled].picked{opacity:1;}
+  .answer{margin-top:7px; font-family:var(--serif); font-size:12px; line-height:1.7; color:var(--accent2); background:#fdf7ed; border:1px dashed var(--line2); border-radius:10px; padding:8px 10px;}
+  .answer b{font-family:var(--sans); font-size:9px; letter-spacing:1px; color:var(--accent); border:1px solid var(--accent); border-radius:99px; padding:2px 6px; margin-left:4px; white-space:nowrap;}
+  .redline{display:inline-flex; align-items:center; gap:5px; font-size:10px; color:#9c4f45; background:#fbeee9; border:1px solid #ecd3c9; border-radius:99px; padding:3px 8px;}
+  .actionBar{position:sticky; bottom:0; padding-top:8px; background:linear-gradient(180deg,rgba(241,233,220,0),var(--paper) 42%);}
+
+  /* 妆台 */
+  .studioTop{display:flex; gap:8px; align-items:stretch;}
+  .studioTop .mirror{flex:1; min-height:210px;}
+  .studioTop .mirror svg.doll{width:150px; height:256px;}
+  .lookCol{flex:0 0 106px; display:flex; flex-direction:column; gap:5px;}
+  .lookSlot{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:6px 8px; display:flex; justify-content:space-between; align-items:center; gap:5px; font-size:10px; color:var(--muted); box-shadow:0 2px 6px rgba(92,66,44,.05);}
+  .lookSlot b{font-size:10px; color:var(--ink); font-weight:500; max-width:62px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .lookSlot.on{border-color:#d9b9a5; background:#fff6ee;}
+  .tabs{display:flex; gap:5px; overflow-x:auto; padding:2px 1px 4px; scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{flex:0 0 auto; appearance:none; border:1px solid var(--line); background:var(--paper2); color:var(--muted); border-radius:99px; padding:7px 11px; font-size:11px; font-family:var(--sans); cursor:pointer; min-height:34px;}
+  .tab.on{background:var(--ink); border-color:var(--ink); color:#fbf6ec;}
+  .tab .dot{display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--accent); margin-left:4px; vertical-align:2px;}
+  .tab.on .dot{background:#f0c9a8;}
+  .optGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:7px;}
+  .itemCard{appearance:none; font-family:var(--sans); position:relative; text-align:left; background:var(--paper2); border:1px solid var(--line); border-radius:12px; padding:8px 8px 7px; cursor:pointer; min-height:88px; display:flex; flex-direction:column; gap:4px; color:var(--ink);}
+  .itemCard:active{transform:translateY(1px);}
+  .itemCard .swatch{width:22px; height:22px; border-radius:50%; border:1px solid rgba(70,55,42,.18); position:relative; overflow:hidden;}
+  .itemCard .swatch.pattern{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.6) 0 3px,transparent 3px 6px);}
+  .itemCard .nm{font-size:11px; line-height:1.35; font-weight:500;}
+  .itemCard .tg{font-size:9px; color:var(--faint); line-height:1.35;}
+  .itemCard.sel{border-color:var(--accent); background:#fff5ec; box-shadow:0 0 0 1px var(--accent) inset;}
+  .itemCard.sel::after{content:"已选"; position:absolute; right:6px; top:6px; font-size:8px; letter-spacing:1px; color:#fff8ef; background:var(--accent); border-radius:99px; padding:2px 5px;}
+  .itemCard.warn{border-color:#b34f43; background:#fbeee9;}
+  .itemCard.warn::before{content:"底线"; position:absolute; right:6px; top:6px; font-size:8px; letter-spacing:1px; color:#fff8ef; background:#b34f43; border-radius:99px; padding:2px 5px;}
+  .itemCard.sel.warn::after{display:none;}
+  .hintLine{font-size:10px; color:var(--faint); line-height:1.55; text-align:center; padding:2px 0 0;}
+
+  /* 结算 */
+  .resultHero{text-align:center; padding:16px 14px 12px; position:relative; overflow:hidden;}
+  .resultHero .lv{font-family:var(--serif); font-size:30px; letter-spacing:6px; color:var(--accent); margin:4px 0 4px;}
+  .resultHero .lvSub{font-size:11px; color:var(--muted); letter-spacing:1px;}
+  .resultHero .rail{position:absolute; left:14px; right:14px; top:12px; height:1px; background:var(--line);}
+  .resultDoll{width:150px; height:250px; margin:2px auto 0;}
+  .resultDoll svg.doll{width:150px; height:250px; display:block; margin:0 auto;}
+  .compare{display:flex; align-items:flex-end; justify-content:center; gap:7px; margin:4px 0 0;}
+  .cmp{width:120px; display:flex; flex-direction:column; align-items:center; gap:2px;}
+  .cmp .cd{width:120px; height:207px;}
+  .cmp .cd svg.doll{width:120px; height:207px; display:block;}
+  .cmp span{font-size:9px; letter-spacing:2px; color:var(--muted);}
+  .cmpArrow{font-size:14px; color:var(--faint); padding-bottom:28px;}
+  .blocks{display:flex; flex-direction:column; gap:7px;}
+  .blk{display:flex; gap:9px; padding:10px 11px;}
+  .blk + .blk{border-top:1px dashed var(--line);}
+  .blk .k{flex:0 0 58px; font-size:10px; letter-spacing:1px; color:var(--muted); padding-top:2px;}
+  .blk .v{flex:1; font-size:12px; line-height:1.65;}
+  .blk .v.serif{font-family:var(--serif); font-size:13px; line-height:1.8;}
+  .chips{display:flex; flex-wrap:wrap; gap:4px;}
+  .chip{font-size:9px; color:var(--muted); border:1px solid var(--line); background:var(--paper2); border-radius:99px; padding:2px 6px;}
+  .chip.hit{color:var(--accent2); border-color:#dcc6ae; background:#fdf4e6;}
+  .chip.bad{color:#9c4f45; border-color:#e4c3b7; background:#fbeee9;}
+  .story{font-family:var(--serif); font-size:14px; line-height:1.95; letter-spacing:.3px; padding:13px 14px; background:#fdf7ed; border:1px solid var(--line); border-radius:14px;}
+  .story .cap{font-family:var(--sans); font-size:9px; letter-spacing:2px; color:var(--accent); display:block; margin-bottom:6px;}
+  .scoreDetail{border:1px dashed var(--line2); border-radius:10px; padding:8px 10px; font-size:10px; color:var(--muted); line-height:1.7; background:#fbf4e8;}
+  .scoreDetail summary{cursor:pointer; color:var(--accent2);}
+  .rewardRow{display:flex; gap:6px;}
+  .rewardRow .r{flex:1; text-align:center; background:var(--paper2); border:1px solid var(--line); border-radius:11px; padding:8px 4px; font-size:10px; color:var(--muted);}
+  .rewardRow .r b{display:block; font-family:var(--serif); font-size:17px; color:var(--ink); margin-bottom:2px;}
+
+  /* 客人簿 */
+  .bookRow{display:flex; gap:10px; padding:10px; align-items:stretch;}
+  .bookRow .miniDoll{flex:0 0 62px;}
+  .bookRow .miniDoll svg{width:58px; height:100px;}
+  .bookRow .bBody{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;}
+  .bookRow .bTop{display:flex; justify-content:space-between; gap:6px; align-items:baseline;}
+  .bookRow .bTitle{font-family:var(--serif); font-size:14px;}
+  .bookRow .bLv{font-size:9px; color:var(--accent); border:1px solid currentColor; border-radius:99px; padding:2px 6px; letter-spacing:1px;}
+  .bookRow .bStory{font-size:10px; line-height:1.6; color:var(--muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+  .emptyBook{text-align:center; padding:26px 16px; color:var(--muted); font-size:12px; line-height:1.8;}
+
+  /* 通用 */
+  #toast{position:fixed; left:50%; bottom:28px; transform:translate(-50%,14px); background:rgba(60,51,44,.94); color:#fbf6ec; font-size:12px; padding:9px 14px; border-radius:99px; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:80; max-width:88vw; text-align:center;}
+  #toast.on{opacity:1; transform:translate(-50%,0);}
+  .modal{position:fixed; inset:0; background:rgba(55,44,34,.42); display:flex; align-items:flex-end; justify-content:center; z-index:90; padding:12px;}
+  .modal.hidden{display:none;}
+  .sheet{width:100%; max-width:430px; max-height:80dvh; overflow:auto; background:var(--paper2); border-radius:18px; border:1px solid var(--line); padding:14px; box-shadow:0 -8px 40px rgba(60,40,25,.2);}
+  .sheet h3{margin:0 0 8px; font-family:var(--serif); font-size:16px; letter-spacing:1px;}
+  .evRow{display:flex; justify-content:space-between; gap:8px; font-size:10px; color:var(--muted); border-bottom:1px dotted var(--line); padding:5px 0;}
+  .evRow b{color:var(--ink); font-weight:500;}
+  .hidden{display:none !important;}
+  .spacer{height:2px;}
+  @media (max-width:360px){
+    .optGrid{gap:5px;} .itemCard{padding:7px 6px;} .itemCard .nm{font-size:10px;}
+    .lookCol{flex-basis:96px;} .mirror svg.doll{width:160px; height:276px;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brandRow">
+      <div class="brand">妆匣<span>一日妆造师 · 灰盒</span></div>
+      <div class="ver" id="verLabel">vB0.3</div>
+    </div>
+    <div class="hud">
+      <div class="hudChip"><span>印章</span><b id="sealCount">0</b></div>
+      <div class="hudChip"><span>已归档</span><b id="doneCount">0 / 12</b></div>
+      <button class="hudChip" id="bookBtn">客人簿</button>
+    </div>
+  </header>
+  <main id="main"></main>
+  <footer>
+    <span>灰盒 vB0.1 · AI 起草，待人类拍板</span>
+    <button id="logBtn">记录</button>
+  </footer>
+</div>
+<div id="toast"></div>
+<div id="modal" class="modal hidden"><div class="sheet" id="sheet"></div></div>
+
+<script type="application/json" id="gameData">
+{
+  "version": "vB0.3",
+  "desires": {
+    "seen": "被看见",
+    "respect": "被尊重",
+    "ease": "松弛",
+    "safe": "安全感",
+    "memory": "纪念",
+    "restart": "重新开始"
+  },
+  "occasions": {
+    "solemn": "郑重",
+    "daily": "日常",
+    "celebrate": "庆祝",
+    "farewell": "告别"
+  },
+  "items": {
+    "b1": {"slot":"base","name":"雾面底妆","tags":["respect","safe"],"occasions":["solemn"],"attrs":["哑光","自然"],"color":"#efd8c6"},
+    "b2": {"slot":"base","name":"水光底妆","tags":["seen","ease"],"occasions":["celebrate"],"attrs":["水光","自然"],"color":"#f5dfce"},
+    "b3": {"slot":"base","name":"轻透素肌","tags":["ease","memory"],"occasions":["daily","solemn"],"attrs":["自然","轻薄"],"color":"#f2dccb"},
+    "b4": {"slot":"base","name":"柔焦遮瑕","tags":["safe","respect"],"occasions":["solemn"],"attrs":["遮瑕","哑光"],"color":"#ecd4c2"},
+    "b5": {"slot":"base","name":"丝绒底妆","tags":["memory","restart"],"occasions":["celebrate","farewell"],"attrs":["哑光","丝绒"],"color":"#ead3c0"},
+    "b6": {"slot":"base","name":"暖调素颜霜","tags":["ease","safe"],"occasions":["daily"],"attrs":["自然","水光"],"color":"#f4e0cf"},
+
+    "e1": {"slot":"eye","name":"大地眼影","tags":["respect","ease"],"occasions":["daily","solemn"],"attrs":["棕","哑光"],"color":"#a8876f"},
+    "e2": {"slot":"eye","name":"细闪眼影","tags":["seen","restart"],"occasions":["celebrate"],"attrs":["亮片","香槟"],"color":"#c9a96e"},
+    "e3": {"slot":"eye","name":"素眼","tags":["safe","memory"],"occasions":["daily"],"attrs":["素","无"],"color":null},
+    "e4": {"slot":"eye","name":"上扬眼线","tags":["seen","restart"],"occasions":["celebrate","farewell"],"attrs":["黑","线条","舞台浓妆"],"color":"#4b4038"},
+    "e5": {"slot":"eye","name":"红棕眼尾","tags":["seen","memory"],"occasions":["celebrate","farewell"],"attrs":["棕","晕染"],"color":"#9c6a5c"},
+    "e6": {"slot":"eye","name":"浓密假睫毛","tags":["seen","restart"],"occasions":["celebrate"],"attrs":["假睫毛","夸张假睫毛","浓"],"color":"#3b332e"},
+
+    "l1": {"slot":"lip","name":"豆沙唇","tags":["respect","ease"],"occasions":["daily","solemn"],"attrs":["豆沙","哑光"],"color":"#a56b63"},
+    "l2": {"slot":"lip","name":"正红唇","tags":["seen","restart"],"occasions":["celebrate","farewell"],"attrs":["红","亮"],"color":"#b23c3c"},
+    "l3": {"slot":"lip","name":"裸色唇","tags":["safe","memory"],"occasions":["daily"],"attrs":["裸色","自然"],"color":"#c08a7e"},
+    "l4": {"slot":"lip","name":"旧调红唇","tags":["memory","respect"],"occasions":["solemn"],"attrs":["暗红","复古"],"color":"#8d4a44"},
+    "l5": {"slot":"lip","name":"蜜桃唇","tags":["ease","seen"],"occasions":["daily","celebrate"],"attrs":["蜜桃","水光"],"color":"#c97f74"},
+    "l6": {"slot":"lip","name":"砖红唇","tags":["restart","respect"],"occasions":["celebrate","solemn"],"attrs":["红","哑光"],"color":"#9c4a3f"},
+
+    "h1": {"slot":"hair","name":"低发髻","tags":["respect","memory"],"occasions":["solemn"],"attrs":["盘发","低"],"color":"#3d3530","shape":"bun"},
+    "h2": {"slot":"hair","name":"自然披发","tags":["ease","safe"],"occasions":["daily"],"attrs":["披发","自然"],"color":"#4a4038","shape":"long"},
+    "h3": {"slot":"hair","name":"利落短发","tags":["restart","respect"],"occasions":["solemn","daily"],"attrs":["短发","利落"],"color":"#332d29","shape":"short"},
+    "h4": {"slot":"hair","name":"复古手推波纹","tags":["memory","seen"],"occasions":["celebrate"],"attrs":["卷发","复古"],"color":"#4a3b33","shape":"wave"},
+    "h5": {"slot":"hair","name":"半扎发","tags":["ease","memory"],"occasions":["daily","celebrate"],"attrs":["半扎","自然"],"color":"#443a33","shape":"long"},
+    "h6": {"slot":"hair","name":"高马尾","tags":["restart","seen"],"occasions":["daily","celebrate"],"attrs":["马尾","利落"],"color":"#3a332d","shape":"pony"},
+
+    "t1": {"slot":"top","shape":"jacket","name":"结构感西装","tags":["respect","restart"],"occasions":["solemn"],"attrs":["西装","炭黑","深色"],"color":"#3f4650"},
+    "t2": {"slot":"top","shape":"shirt","name":"丝质衬衫","tags":["ease","seen"],"occasions":["daily","celebrate"],"attrs":["衬衫","米白"],"color":"#e8e0d2"},
+    "t3": {"slot":"top","shape":"knit","name":"针织开衫","tags":["safe","ease"],"occasions":["daily"],"attrs":["针织","灰"],"color":"#b9b1a5"},
+    "t4": {"slot":"top","shape":"blouse","name":"旧缎面上衣","tags":["memory","seen"],"occasions":["celebrate","solemn"],"attrs":["缎面","暗红"],"color":"#7d4a45"},
+    "t5": {"slot":"top","shape":"hoodie","name":"宽松卫衣","tags":["safe","ease"],"occasions":["daily"],"attrs":["卫衣","运动"],"color":"#d5d0c8"},
+    "t6": {"slot":"top","shape":"blouse","name":"白色蕾丝上衣","tags":["seen","memory"],"occasions":["celebrate"],"attrs":["纯白","蕾丝"],"color":"#f4f0e8"},
+    "t7": {"slot":"top","shape":"turtleneck","crop":true,"name":"短款高领衫","tags":["restart","seen"],"occasions":["celebrate"],"attrs":["短款","露腰"],"color":"#e6d9c9"},
+    "t8": {"slot":"top","shape":"coat","name":"驼色大衣","tags":["respect","memory"],"occasions":["solemn","farewell"],"attrs":["大衣","驼色"],"color":"#b39472"},
+    "t9": {"slot":"top","shape":"turtleneck","name":"黑色高领","tags":["safe","respect"],"occasions":["solemn","daily"],"attrs":["炭黑","高领","全黑","深色"],"color":"#2f2f33"},
+    "t10": {"slot":"top","shape":"shirt","name":"印花衬衫","tags":["ease","seen"],"occasions":["daily","celebrate"],"attrs":["印花","彩色"],"color":"#cfaaa0"},
+    "t11": {"slot":"top","shape":"jacket","name":"工装夹克","tags":["restart","ease"],"occasions":["daily","farewell"],"attrs":["工装","军绿"],"color":"#6f7358"},
+    "t12": {"slot":"top","shape":"slip","name":"丝绸吊带","tags":["seen","ease"],"occasions":["celebrate"],"attrs":["吊带","露腰"],"color":"#c9a6a0"},
+    "t13": {"slot":"top","shape":"vest","crop":true,"name":"短款针织背心","tags":["memory","ease"],"occasions":["daily"],"attrs":["针织","叠穿"],"color":"#c3b7a4"},
+
+    "d1": {"slot":"bottom","name":"直筒长裤","tags":["respect","restart"],"occasions":["solemn"],"attrs":["长裤","炭黑","深色"],"color":"#3f4650","shape":"pants"},
+    "d2": {"slot":"bottom","name":"及膝半裙","tags":["seen","memory"],"occasions":["celebrate","solemn"],"attrs":["半裙","藏蓝"],"color":"#45566b","shape":"skirt"},
+    "d3": {"slot":"bottom","name":"牛仔裤","tags":["ease","safe"],"occasions":["daily"],"attrs":["牛仔","蓝"],"color":"#7d94a8","shape":"pants"},
+    "d4": {"slot":"bottom","name":"阔腿裤","tags":["ease","respect"],"occasions":["daily","solemn"],"attrs":["阔腿","米"],"color":"#d8cdb9","shape":"wide"},
+    "d5": {"slot":"bottom","name":"丝绒长裙","tags":["memory","seen"],"occasions":["celebrate"],"attrs":["长裙","墨绿"],"color":"#3f5b4a","shape":"long"},
+    "d6": {"slot":"bottom","name":"百褶裙","tags":["memory","seen"],"occasions":["celebrate","solemn"],"attrs":["百褶","浅灰"],"color":"#cfc6ba","shape":"skirt"},
+    "d7": {"slot":"bottom","name":"微喇长裤","tags":["seen","respect"],"occasions":["solemn","celebrate"],"attrs":["长裤","深蓝"],"color":"#37415a","shape":"pants"},
+    "d8": {"slot":"bottom","name":"伞裙","tags":["ease","seen"],"occasions":["daily","celebrate"],"attrs":["伞裙","米"],"color":"#ddd2c0","shape":"skirt"},
+    "d9": {"slot":"bottom","name":"运动长裤","tags":["safe","ease"],"occasions":["daily"],"attrs":["运动","灰"],"color":"#b6b2ab","shape":"pants"},
+    "d10": {"slot":"bottom","name":"缎面长裙","tags":["memory","respect"],"occasions":["solemn","celebrate"],"attrs":["长裙","藏青"],"color":"#3c4a63","shape":"long"},
+    "d11": {"slot":"bottom","name":"高腰短裙","tags":["restart","seen"],"occasions":["celebrate","daily"],"attrs":["短裙","黑"],"color":"#34302e","shape":"skirt"},
+    "d12": {"slot":"bottom","name":"棉麻长裤","tags":["ease","memory"],"occasions":["daily","farewell"],"attrs":["长裤","米白"],"color":"#ded4c2","shape":"wide"},
+
+    "a1": {"slot":"accessory","name":"珍珠耳钉","tags":["memory","respect"],"occasions":["celebrate","solemn"],"attrs":["珍珠","耳饰"],"color":"#e9e4d8","shape":"pearl"},
+    "a2": {"slot":"accessory","name":"细框眼镜","tags":["safe","ease"],"occasions":["daily"],"attrs":["眼镜"],"color":"#8d7b67","shape":"glasses"},
+    "a3": {"slot":"accessory","name":"旧胸针","tags":["memory","seen"],"occasions":["solemn"],"attrs":["胸针","金属"],"color":"#b08d4f","shape":"brooch"},
+    "a4": {"slot":"accessory","name":"红围巾","tags":["seen","restart"],"occasions":["celebrate","farewell"],"attrs":["红色","围巾"],"color":"#a8443c","shape":"scarf"},
+    "a5": {"slot":"accessory","name":"素银手镯","tags":["safe","memory"],"occasions":["daily"],"attrs":["银","手镯"],"color":"#c9c9c9","shape":"bracelet"},
+    "a6": {"slot":"accessory","name":"宽檐帽","tags":["safe","seen"],"occasions":["daily"],"attrs":["遮脸","帽"],"color":"#6b5a4a","shape":"hat"},
+    "a7": {"slot":"accessory","name":"丝质方巾","tags":["ease","memory"],"occasions":["daily","farewell"],"attrs":["方巾","印花"],"color":"#b9746a","shape":"scarf"},
+    "a8": {"slot":"accessory","name":"金细链","tags":["seen","respect"],"occasions":["celebrate","solemn"],"attrs":["项链","金"],"color":"#c2a05c","shape":"pearl"},
+    "a9": {"slot":"accessory","name":"蝴蝶结发夹","tags":["memory","ease"],"occasions":["celebrate","daily"],"attrs":["蝴蝶结","发饰"],"color":"#c98b8b","shape":"bow"},
+    "a10": {"slot":"accessory","name":"黑色丝带","tags":["restart","safe"],"occasions":["farewell","daily"],"attrs":["丝带","黑色","全黑","深色"],"color":"#2e2b2c","shape":"scarf"},
+    "a11": {"slot":"accessory","name":"琥珀耳环","tags":["seen","memory"],"occasions":["celebrate"],"attrs":["琥珀","耳饰"],"color":"#b98142","shape":"pearl"},
+    "a12": {"slot":"accessory","name":"旧银戒","tags":["memory","safe"],"occasions":["daily"],"attrs":["银","戒指"],"color":"#c9c9c9","shape":"bracelet"},
+    "a13": {"slot":"accessory","name":"宽肩披肩","tags":["respect","safe"],"occasions":["solemn","farewell"],"attrs":["披肩","毛呢"],"color":"#6d6459","shape":"scarf"},
+    "a14": {"slot":"accessory","name":"素圈耳环","tags":["ease","safe"],"occasions":["daily"],"attrs":["银","耳饰"],"color":"#d8cbb6","shape":"pearl"},
+    "a15": {"slot":"accessory","name":"布艺发圈","tags":["ease","restart"],"occasions":["daily","celebrate"],"attrs":["布艺","发饰"],"color":"#b8a89b","shape":"bow"}
+  },
+  "commissions": [
+    {
+      "id": "c1",
+      "no": 1,
+      "chapter": 1,
+      "title": "转行面试",
+      "client": "林晚",
+      "who": "28 岁 · 转行中",
+      "occasion": "solemn",
+      "main": "respect",
+      "secondary": "restart",
+      "quote": "别太显眼就行。",
+      "redline": {"attr":"亮片","text":"不要亮片"},
+      "defaultHair": "h3",
+      "details": [
+        {"name":"磨破的鞋跟","text":"鞋跟磨得厉害，她站着时会下意识把重心放在左脚。"},
+        {"name":"夜校报名表","text":"包里露出一角：夜校报名表，日期是上周。"},
+        {"name":"摸耳垂","text":"说话时反复摸耳垂，像在确认自己还在这里。"}
+      ],
+      "questions": [
+        {"q":"紧张吗？","tag":"safe","answer":"「有一点。」她把手指从耳垂上放下来，「怕他们觉得我不够格。」"},
+        {"q":"为什么现在转行？","tag":"restart","answer":"「不想再等一个以后了。」她说这句话时，背挺直了一点。"},
+        {"q":"想让他们记住你什么？","tag":"respect","answer":"她想了很久：「记住我是个认真的人，不是来碰运气的。」"}
+      ],
+      "candidates": {
+        "base":["b1","b4","b3"],
+        "eye":["e1","e2","e4"],
+        "lip":["l1","l2","l3"],
+        "hair":["h1","h3","h2"],
+        "top":["t1","t2","t3"],
+        "bottom":["d1","d4","d3"],
+        "accessory":["a1","a3","a2"]
+      },
+      "stories": {
+        "qihe":"她走进电梯，第一次没有低头看自己的鞋。面试官后来记住的，不是她的履历，是她说话时稳稳看着对方的样子。",
+        "heshi":"她出来时发来一条消息：「好像还行。」第二天她说 offer 还要再等等，但语气已经不慌了。",
+        "jiangjiu":"她道了谢，把外套拢紧。走到街口又回头，问能不能把唇色擦淡一点。你说当然可以，她却又说算了。",
+        "cuowei":"她在门口停住，说今天还是想穿回自己的旧外套。你没有拦她。她走后，镜子上留下一枚指纹。"
+      }
+    },
+    {
+      "id": "c5",
+      "no": 5,
+      "chapter": 2,
+      "title": "婚礼上的母亲",
+      "client": "周岚",
+      "who": "52 岁 · 新娘的母亲",
+      "occasion": "celebrate",
+      "main": "seen",
+      "secondary": "memory",
+      "quote": "别抢新娘风头。",
+      "redline": {"attr":"纯白","text":"不要纯白"},
+      "defaultHair": "h1",
+      "details": [
+        {"name":"旧合照","text":"手机壳里夹着一张旧合照，边缘已经起毛。"},
+        {"name":"手心出汗","text":"她把手在裙侧擦了两次，才伸过来。"},
+        {"name":"整理袖口","text":"她一直在整理袖口，像是怕自己哪里不合身。"}
+      ],
+      "questions": [
+        {"q":"紧张吗？","tag":"safe","answer":"「我女儿结婚，我紧张什么。」她说完，又把手在裙侧擦了一下。"},
+        {"q":"想让人看到什么？","tag":"seen","answer":"「就想让她知道，妈妈今天也好好来了。」"},
+        {"q":"今天对你意味着什么？","tag":"memory","answer":"「她真的长大了。」她看着镜子，「也意味着我该往后退了。」"}
+      ],
+      "candidates": {
+        "base":["b2","b3","b4"],
+        "eye":["e2","e1","e3"],
+        "lip":["l2","l4","l3"],
+        "hair":["h4","h1","h2"],
+        "top":["t4","t6","t2"],
+        "bottom":["d2","d5","d3"],
+        "accessory":["a1","a4","a13"]
+      },
+      "stories": {
+        "qihe":"合影时她站在女儿身边，没有往后退半步。照片洗出来，她把自己那张裁下来，放进了旧相册。",
+        "heshi":"敬酒时有人夸她气色好。她摆摆手，转头却悄悄问你，口红的颜色叫什么。",
+        "jiangjiu":"她整晚站在人群边上，替女儿拿包。散场时她说，今天挺好的，就是有点不像自己。",
+        "cuowei":"她在洗手间卸了一半的妆才出来见人。「太隆重了，」她说，「这不是我。」"
+      }
+    },
+    {
+      "id": "c12",
+      "no": 12,
+      "chapter": 3,
+      "title": "外婆的最后一页",
+      "client": "许知",
+      "who": "34 岁 · 替外婆来的人",
+      "occasion": "solemn",
+      "main": "memory",
+      "secondary": "respect",
+      "quote": "照她当年的样子。",
+      "redline": {"attr":"遮脸","text":"不要遮住脸"},
+      "defaultHair": "h4",
+      "details": [
+        {"name":"旧票根","text":"客人簿里夹着一张旧票根，日期比你记事还早。"},
+        {"name":"镜背的字","text":"镜子背面有一行褪色的字：今天也要好好出门。"},
+        {"name":"旧口红","text":"柜子最里面有一支用到底的口红，色号已经看不清。"}
+      ],
+      "questions": [
+        {"q":"你认识她吗？","tag":"memory","answer":"「她是我外婆。」她顿了顿，「也是这家店以前的客人。」"},
+        {"q":"为什么今天来？","tag":"respect","answer":"「想把这张照片拍好。她这辈子没几张像样的照片。」"},
+        {"q":"想化给谁看？","tag":"seen","answer":"「给她看。」她笑了一下，「虽然她看不到了。」"}
+      ],
+      "candidates": {
+        "base":["b3","b4","b1"],
+        "eye":["e3","e1","e2"],
+        "lip":["l4","l3","l2"],
+        "hair":["h1","h4","h2"],
+        "top":["t4","t1","t2"],
+        "bottom":["d2","d4","d3"],
+        "accessory":["a1","a12","a6"]
+      },
+      "stories": {
+        "qihe":"她对着镜子笑了一下，像很多年前那个人一样。照片拍完，她把旧口红放回柜子，没有带走。",
+        "heshi":"照片里她坐得很直。她说外婆当年也是这样，拍照前要把衣角抚平三次。",
+        "jiangjiu":"她看了照片很久，说「不太像」。你问要不要重来，她摇头：「留着吧，也是我。」",
+        "cuowei":"她把帽子摘下来，说还是别拍了。出门前，她在客人簿上替外婆补了一行字。"
+      }
+    },
+    {
+      "id": "c2",
+      "no": 2,
+      "chapter": 1,
+      "title": "相亲",
+      "client": "苏棠",
+      "who": "30 岁 · 被安排来的人",
+      "occasion": "daily",
+      "main": "seen",
+      "secondary": "ease",
+      "quote": "我妈让我来的。",
+      "redline": {"attr":"红色","text":"不要红色"},
+      "defaultHair": "h2",
+      "details": [
+        {"name":"倒扣的手机","text":"手机一直倒扣在桌上，来了消息也不翻。"},
+        {"name":"磨白的工牌绳","text":"包侧露出工牌挂绳，边角已经磨白，她没有摘。"},
+        {"name":"咬嘴唇","text":"开口前会先咬一下嘴唇，像在试这句话的份量。"}
+      ],
+      "questions": [
+        {"q":"你妈怎么跟你说的？","tag":"ease","answer":"「她说人不错，让我别挑。」她耸了下肩，「我也没挑，就是有点累。」"},
+        {"q":"你希望对方记住你什么？","tag":"seen","answer":"「记住我是个有意思的人吧。」她顿了顿，「别只看照片。」"},
+        {"q":"如果不来，你今天想做什么？","tag":"safe","answer":"「在家煮一锅汤，把那部没看完的剧看完。」她小声补一句，「听起来是不是很没出息。」"}
+      ],
+      "candidates": {
+        "base":["b2","b6","b4"],
+        "eye":["e5","e3","e1"],
+        "lip":["l5","l3","l1"],
+        "hair":["h2","h5","h3"],
+        "top":["t2","t10","t3"],
+        "bottom":["d8","d3","d2"],
+        "accessory":["a8","a15","a4"]
+      },
+      "stories": {
+        "qihe":"她提前十分钟到，把手机翻过来放在桌上。对面的人问她平时做什么，她讲得很久，中间笑了一次。走的时候她说，下次我自己来。",
+        "heshi":"她回来后给你发消息：「还行，就是不熟。」第二周她又来了一次，这次没让母亲打电话。",
+        "jiangjiu":"她全程都很客气。散场时对方说改天再约，她点头，删了对话框，也删了那条练了一晚的自我介绍。",
+        "cuowei":"她在洗手间照了很久的镜子，出来时把外套扣子扣到最上面。她说今天可能不该来。"
+      }
+    },
+    {
+      "id": "c3",
+      "no": 3,
+      "chapter": 1,
+      "title": "同学会",
+      "client": "何茵",
+      "who": "33 岁 · 十年没见的人",
+      "occasion": "celebrate",
+      "main": "memory",
+      "secondary": "seen",
+      "quote": "随便弄弄，别太刻意。",
+      "redline": {"attr":"运动","text":"不要运动装"},
+      "defaultHair": "h4",
+      "details": [
+        {"name":"旧合照","text":"钱包里夹着一张毕业合照，最边上那个是她。"},
+        {"name":"备忘录","text":"备忘录里写着一句开场白，划掉又写，写了三遍。"},
+        {"name":"校徽挂件","text":"钥匙上挂着一枚旧校徽，漆掉了一半。"}
+      ],
+      "questions": [
+        {"q":"最想见到谁？","tag":"memory","answer":"「其实都想。」她笑，「最想看看当年坐我后排的人，现在什么样。」"},
+        {"q":"怕被比较吗？","tag":"safe","answer":"「有一点。」她说得很轻，「这些年我没做出什么大事。」"},
+        {"q":"想让他们看到什么？","tag":"seen","answer":"「看到我现在过得还行吧。」她补一句，「真的还行。」"}
+      ],
+      "candidates": {
+        "base":["b3","b5","b6"],
+        "eye":["e5","e1","e3"],
+        "lip":["l4","l2","l3"],
+        "hair":["h4","h2","h1"],
+        "top":["t4","t10","t5"],
+        "bottom":["d5","d11","d3"],
+        "accessory":["a3","a2","a4"]
+      },
+      "stories": {
+        "qihe":"她进门时没人立刻认出来。三秒后有人喊出她的旧绰号，她笑着应了，一整晚都没再摸手机。",
+        "heshi":"有人问她这些年怎么样。她说挺好的，然后真的讲了几件挺好的事。",
+        "jiangjiu":"她坐在角落，替大家拍了很多照片。散场后翻相册，才发现没有一张有自己的脸。",
+        "cuowei":"她提前走了。在楼下站了一会儿，给当年最好的朋友发消息，又撤回了。"
+      }
+    },
+    {
+      "id": "c4",
+      "no": 4,
+      "chapter": 1,
+      "title": "机场送别",
+      "client": "陈语",
+      "who": "26 岁 · 送人的人",
+      "occasion": "farewell",
+      "main": "memory",
+      "secondary": "safe",
+      "quote": "别搞得像生离死别。",
+      "redline": {"attr":"全黑","text":"不要全黑"},
+      "defaultHair": "h2",
+      "details": [
+        {"name":"登机牌背面","text":"背面用圆珠笔写了一行小字：到了发消息。"},
+        {"name":"看时间","text":"她每隔十几秒就看一次出发大屏，其实时间还早。"},
+        {"name":"攥着纸巾","text":"纸巾在手里攥成了一团，始终没拆开。"}
+      ],
+      "questions": [
+        {"q":"送谁？","tag":"memory","answer":"「我哥。他要去很远的地方工作，两年。」"},
+        {"q":"你怎么不哭？","tag":"safe","answer":"「哭了他会担心。」她说，「我得让他走得轻松点。」"},
+        {"q":"今天你自己想成为什么样的人？","tag":"respect","answer":"「一个让他放心的人。」她吸了口气，「至少装作是。」"}
+      ],
+      "candidates": {
+        "base":["b3","b1","b6"],
+        "eye":["e1","e3","e5"],
+        "lip":["l3","l1","l5"],
+        "hair":["h2","h5","h1"],
+        "top":["t8","t3","t2"],
+        "bottom":["d12","d4","d3"],
+        "accessory":["a7","a5","a1"]
+      },
+      "stories": {
+        "qihe":"安检口前她抱了哥哥一下，很快就松开。哥哥走远后她才抬手挥了挥，一直挥到看不见。",
+        "heshi":"她把纸巾塞回口袋，说风大。回家路上给哥哥发了一句：到了报平安。",
+        "jiangjiu":"她笑着说再见，转身时妆有点花。登机口那边的人回头看了两次。",
+        "cuowei":"她一路没说话。到家后才发现，准备好的那封信还在自己包里。"
+      }
+    },
+    {
+      "id": "c6",
+      "no": 6,
+      "chapter": 2,
+      "title": "产后复出",
+      "client": "罗晴",
+      "who": "31 岁 · 回到工位的人",
+      "occasion": "daily",
+      "main": "restart",
+      "secondary": "seen",
+      "quote": "能见人就行。",
+      "redline": {"attr":"露腰","text":"不要露腰"},
+      "defaultHair": "h6",
+      "details": [
+        {"name":"冰袋","text":"包里塞着一个冰袋，她解释说是给背奶用的。"},
+        {"name":"旧工位照片","text":"相册第一张是产前的工位，桌上还摆着同一盆绿植。"},
+        {"name":"卡住的戒指","text":"戒指卡在无名指关节上，她下意识转了转。"}
+      ],
+      "questions": [
+        {"q":"多久没好好出门了？","tag":"ease","answer":"「快一年了。」她说，「上一次认真打扮，是产检那天。」"},
+        {"q":"怕别人怎么看你？","tag":"safe","answer":"「怕他们觉得我回不来了。」说完她自己先笑了一下。"},
+        {"q":"想回到什么状态？","tag":"restart","answer":"「回到那个说走就走、能扛事的人。」"}
+      ],
+      "candidates": {
+        "base":["b2","b6","b5"],
+        "eye":["e2","e4","e1"],
+        "lip":["l2","l5","l1"],
+        "hair":["h6","h3","h2"],
+        "top":["t7","t11","t3"],
+        "bottom":["d11","d1","d3"],
+        "accessory":["a8","a2","a4"]
+      },
+      "stories": {
+        "qihe":"她走进会议室，主动说了第一句话。午休时同事问她是不是没睡好，她说不太好，但今天还行。",
+        "heshi":"会开到一半她去了趟洗手间，回来接着讲。散会后她把高跟鞋脱了，光脚走回工位。",
+        "jiangjiu":"她一整天都在往洗手间跑。下班时她说，可能还需要一点时间。",
+        "cuowei":"她请了半天假。回家的地铁上，她翻出产前的工位照片看了很久。"
+      }
+    },
+    {
+      "id": "c7",
+      "no": 7,
+      "chapter": 2,
+      "title": "离职那天",
+      "client": "方澄",
+      "who": "29 岁 · 把工牌交回去的人",
+      "occasion": "solemn",
+      "main": "respect",
+      "secondary": "restart",
+      "quote": "想体面一点。",
+      "redline": {"attr":"西装","text":"不要西装"},
+      "defaultHair": "h3",
+      "details": [
+        {"name":"掉漆的工牌","text":"工牌边角掉漆，照片上的她比现在笑得用力。"},
+        {"name":"便签本","text":"本子写满了交接事项，最后一页只有一句话：别难为自己。"},
+        {"name":"那盆绿植","text":"桌上的小绿植她抱了一路，叶子有点蔫。"}
+      ],
+      "questions": [
+        {"q":"为什么走？","tag":"restart","answer":"「不想再证明自己配得上了。」说完她长出一口气。"},
+        {"q":"想怎么告别？","tag":"respect","answer":"「好好说声谢谢，不摔门，也不留念。」"},
+        {"q":"怕被看成逃兵吗？","tag":"safe","answer":"「怕过。」她想了一下，「现在不太怕了。」"}
+      ],
+      "candidates": {
+        "base":["b1","b5","b3"],
+        "eye":["e1","e4","e3"],
+        "lip":["l6","l1","l4"],
+        "hair":["h3","h1","h6"],
+        "top":["t1","t8","t2"],
+        "bottom":["d10","d7","d4"],
+        "accessory":["a8","a3","a1"]
+      },
+      "stories": {
+        "qihe":"她把工牌放在前台，说了声谢谢。走出大楼时没有回头，只把手里那盆绿植抱得更稳了一点。",
+        "heshi":"同事请她吃了顿散伙饭。她喝了两杯，说了很多句以后常联系。",
+        "jiangjiu":"她收拾到很晚，走的时候办公室已经没人。灯是她关的。",
+        "cuowei":"她把东西装进纸箱，忘了拿那盆绿植。第二天想起来，也没再回去。"
+      }
+    },
+    {
+      "id": "c8",
+      "no": 8,
+      "chapter": 2,
+      "title": "直播首秀",
+      "client": "小满",
+      "who": "24 岁 · 第一次开播的人",
+      "occasion": "celebrate",
+      "main": "seen",
+      "secondary": "safe",
+      "quote": "别太夸张。",
+      "redline": {"attr":"夸张假睫毛","text":"不要夸张假睫毛"},
+      "defaultHair": "h6",
+      "details": [
+        {"name":"环形灯","text":"她背着补光灯来，说直播间就是一张桌子加这盏灯。"},
+        {"name":"三页稿子","text":"稿子边角卷起，上面标了停顿和重音。"},
+        {"name":"手心的汗","text":"她把手在裤侧擦了一下，才伸过来握手。"}
+      ],
+      "questions": [
+        {"q":"卖什么？","tag":"ease","answer":"「卖我妈做的手工皂。」她笑，「开场白我练了三十遍。」"},
+        {"q":"最怕什么？","tag":"safe","answer":"「怕没人看，也怕人太多。」"},
+        {"q":"想让人记住什么？","tag":"seen","answer":"「记住这个号。」她想了想，「别记住我紧张。」"}
+      ],
+      "candidates": {
+        "base":["b2","b6","b4"],
+        "eye":["e4","e6","e3"],
+        "lip":["l2","l5","l3"],
+        "hair":["h6","h2","h5"],
+        "top":["t2","t10","t3"],
+        "bottom":["d8","d11","d3"],
+        "accessory":["a8","a2","a1"]
+      },
+      "stories": {
+        "qihe":"开播时只有三个人在线。她按练过的稿子讲完，中间笑场，反而有人留下来问链接。下播时在线十七人。",
+        "heshi":"她讲得有点快，中间卡了一次。关掉灯后给你发消息：明天再试一次。",
+        "jiangjiu":"播了二十分钟，她一直在等人说话。下播后盯着后台数据，把稿子收进了抽屉。",
+        "cuowei":"她开播五分钟就关了。手机扣在桌上，很久没再拿起来。"
+      }
+    },
+    {
+      "id": "c9",
+      "no": 9,
+      "chapter": 3,
+      "title": "金婚纪念照",
+      "client": "郑淑英",
+      "who": "74 岁 · 来拍照的人",
+      "occasion": "solemn",
+      "main": "memory",
+      "secondary": "respect",
+      "quote": "拍张正式的。",
+      "redline": {"attr":"深色","text":"不要深色"},
+      "defaultHair": "h1",
+      "details": [
+        {"name":"旧结婚证","text":"红皮小本子磨得发白，她说要带着一起拍。"},
+        {"name":"手背","text":"她反复摸自己的手背，那里有一块晒斑。"},
+        {"name":"小梳子","text":"口袋里揣着一把塑料小梳子，隔一会儿就拿出来。"}
+      ],
+      "questions": [
+        {"q":"五十年了，怎么想到今天拍？","tag":"memory","answer":"「他前两天说，怕以后记不清了。」"},
+        {"q":"想拍成什么样？","tag":"respect","answer":"「正式的，像当年领证那样。」"},
+        {"q":"怕自己被拍老吗？","tag":"safe","answer":"「老就老吧。」她笑，「我们两个一起老，不亏。」"}
+      ],
+      "candidates": {
+        "base":["b6","b1","b5"],
+        "eye":["e1","e4","e3"],
+        "lip":["l4","l1","l6"],
+        "hair":["h1","h4","h3"],
+        "top":["t8","t4","t9"],
+        "bottom":["d10","d3","d4"],
+        "accessory":["a3","a8","a14"]
+      },
+      "stories": {
+        "qihe":"照片洗出来，两个人都坐得很直。她把它放进旧结婚证那一页，说这下齐了。",
+        "heshi":"她嫌自己笑得僵，要求重拍一张。第二张还是有点僵，但她留下了。",
+        "jiangjiu":"她看着照片说，像两个人去开会。临走时问，能不能等头发长长一点再拍一次。",
+        "cuowei":"她说今天状态不好，改天再来。老人在门口等她，她走过去，挽住他的胳膊。"
+      }
+    },
+    {
+      "id": "c10",
+      "no": 10,
+      "chapter": 3,
+      "title": "成人礼上的母亲",
+      "client": "吴梅",
+      "who": "45 岁 · 站在台下的人",
+      "occasion": "celebrate",
+      "main": "seen",
+      "secondary": "memory",
+      "quote": "别把我化老了。",
+      "redline": {"attr":"蝴蝶结","text":"不要蝴蝶结"},
+      "defaultHair": "h4",
+      "details": [
+        {"name":"旧照片","text":"手机里存着女儿小时候的照片，扎着两个辫子。"},
+        {"name":"抚平裙摆","text":"她一直在抚平裙摆，那里其实没有褶。"},
+        {"name":"白了的发根","text":"发根白了一截，她抬手遮了两次。"}
+      ],
+      "questions": [
+        {"q":"今天谁的主角？","tag":"memory","answer":"「当然是她。」她停了停，「但我也想被看一眼。」"},
+        {"q":"你怕老吗？","tag":"safe","answer":"「怕啊。」她很坦白，「今天更怕。」"},
+        {"q":"想让她记住你什么样？","tag":"seen","answer":"「记住妈妈也是漂亮的。」"}
+      ],
+      "candidates": {
+        "base":["b2","b5","b4"],
+        "eye":["e5","e2","e1"],
+        "lip":["l5","l6","l2"],
+        "hair":["h4","h5","h6"],
+        "top":["t4","t6","t10"],
+        "bottom":["d6","d2","d4"],
+        "accessory":["a9","a14","a8"]
+      },
+      "stories": {
+        "qihe":"台上女儿念信的时候，她站在侧幕，被镜头扫到一次。女儿后来把那张截图设成了屏保。",
+        "heshi":"合影时她站得靠后，女儿把她拉到中间，说妈你站这儿。",
+        "jiangjiu":"她整场都在替女儿拿手机和外套。散场时她说，今天真好看——说的不是自己。",
+        "cuowei":"她在洗手间把头发重新别了一遍，出来时活动已经结束了。"
+      }
+    },
+    {
+      "id": "c11",
+      "no": 11,
+      "chapter": 3,
+      "title": "乐队返场",
+      "client": "阿柚",
+      "who": "35 岁 · 回来唱一场的人",
+      "occasion": "celebrate",
+      "main": "seen",
+      "secondary": "restart",
+      "quote": "随便。",
+      "redline": {"attr":"舞台浓妆","text":"不要舞台浓妆"},
+      "defaultHair": "h3",
+      "details": [
+        {"name":"琴盒贴纸","text":"琴盒上贴满旧贴纸，最好的一张已经褪成浅黄。"},
+        {"name":"磨平的拨片","text":"拨片边缘磨圆了，她说这块跟了她十年。"},
+        {"name":"手腕的旧疤","text":"她卷起袖子，不遮手腕上那道旧疤。"}
+      ],
+      "questions": [
+        {"q":"为什么回来唱？","tag":"restart","answer":"「想看看自己还行不行。」"},
+        {"q":"还唱得动吗？","tag":"ease","answer":"「唱得动。就是嗓子不如以前。」她笑。"},
+        {"q":"想让他们记住什么？","tag":"seen","answer":"「记住我们当年有多吵。」"}
+      ],
+      "candidates": {
+        "base":["b2","b5","b3"],
+        "eye":["e4","e2","e3"],
+        "lip":["l2","l6","l5"],
+        "hair":["h6","h2","h3"],
+        "top":["t12","t3","t11"],
+        "bottom":["d11","d5","d1"],
+        "accessory":["a4","a10","a11"]
+      },
+      "stories": {
+        "qihe":"返场第三首她唱破了音，台下反而喊得更响。散场时她说，原来我还记得怎么吵。",
+        "heshi":"她唱了两首就下台，说嗓子不行了。回家路上一直在哼第三首。",
+        "jiangjiu":"灯一打，她先愣了一下。唱到一半才找回节奏，散场时说了句下次吧。",
+        "cuowei":"她站在台上握着话筒，没唱出来。最后放了一段当年的录音，台下有人哭了。"
+      }
+    }
+  ]
+}
+</script>
+<script>
+'use strict';
+const DATA = JSON.parse(document.getElementById('gameData').textContent);
+DATA.commissions.sort(function(a, b){ return a.no - b.no; });
+const VERSION = DATA.version;
+const QA = /[?&]qa=1/.test(location.search);
+const CHAPTERS = [
+  {no:1, name:'开张', seals:0, sub:'第一位客人推门进来'},
+  {no:2, name:'回访', seals:4, sub:'她们把你的名字告诉了别人'},
+  {no:3, name:'客人簿', seals:10, sub:'有些页是很早以前写的'}
+];
+function chapterOf(c){ return c.chapter || 1; }
+function chapterOpen(no){
+  if(QA) return true;
+  const meta = CHAPTERS[no - 1];
+  return !meta || S.seals >= meta.seals;
+}
+const SLOTS = ['base','eye','lip','hair','top','bottom','accessory'];
+const SLOT_LABEL = {base:'底妆',eye:'眼妆',lip:'唇妆',hair:'发型',top:'上装',bottom:'下装',accessory:'配饰'};
+const LEVELS = {
+  qihe:{name:'契合', sub:'她推门出去，步子比来时轻。'},
+  heshi:{name:'合适', sub:'她点点头，说「就这样吧」，但回头看了眼镜子。'},
+  jiangjiu:{name:'将就', sub:'她说了声谢谢，把外套拢紧了一点。'},
+  cuowei:{name:'错位', sub:'她在门口停了一下，说「要不……我再去想想」。'}
+};
+const STORE_KEY = 'zhuangxia_greybox_v1';
+let S = loadState();
+
+function freshState(){
+  return {version:VERSION, view:'home', cid:null, cur:null, done:{}, seals:0, events:[]};
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return freshState();
+    const st = JSON.parse(raw);
+    if(!st || st.version !== VERSION) return freshState();
+    st.events = Array.isArray(st.events) ? st.events.slice(-300) : [];
+    st.done = st.done && typeof st.done === 'object' ? st.done : {};
+    st.seals = Number(st.seals) || 0;
+    return st;
+  }catch(e){ return freshState(); }
+}
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){}
+}
+function log(type, data){
+  S.events.push(Object.assign({t:Date.now(), type:type}, data||{}));
+  if(S.events.length > 300) S.events = S.events.slice(-300);
+}
+function cById(id){ return DATA.commissions.find(function(c){ return c.id === id; }) || null; }
+function itemById(id){ const it = DATA.items[id]; return it ? Object.assign({id:id}, it) : null; }
+function tagName(tag){ return DATA.desires[tag] || tag; }
+function occName(tag){ return DATA.occasions[tag] || tag; }
+
+function lookOf(c, picks){
+  const look = {};
+  SLOTS.forEach(function(slot){
+    const id = picks && picks[slot];
+    look[slot] = id ? itemById(id) : null;
+  });
+  if(!look.hair && c) look.hair = itemById(c.defaultHair) || itemById('h2');
+  return look;
+}
+
+function evaluate(c, picks){
+  const picked = SLOTS.map(function(s){ return picks[s]; }).filter(Boolean).map(itemById);
+  const bad = picked.filter(function(it){ return it.attrs.indexOf(c.redline.attr) >= 0; });
+  const good = picked.filter(function(it){ return it.attrs.indexOf(c.redline.attr) < 0; });
+  const mainHits = good.filter(function(it){ return it.tags.indexOf(c.main) >= 0; }).length;
+  const secHits = good.filter(function(it){ return it.tags.indexOf(c.secondary) >= 0; }).length;
+  const occHits = good.filter(function(it){ return it.occasions.indexOf(c.occasion) >= 0; }).length;
+  let score = 2 + (mainHits >= 4 ? 3 : 0) + (secHits >= 3 ? 2 : 0) + (occHits >= 2 ? 1 : 0) - bad.length * 3;
+  const level = score >= 7 ? 'qihe' : score >= 5 ? 'heshi' : score >= 3 ? 'jiangjiu' : 'cuowei';
+  return {score:score, level:level, mainHits:mainHits, secHits:secHits, occHits:occHits, bad:bad.length,
+          main:c.main, secondary:c.secondary, complete:picked.length === SLOTS.length};
+}
+
+function auditCommission(c){
+  const list = SLOTS.slice();
+  const dist = {qihe:0, heshi:0, jiangjiu:0, cuowei:0};
+  let total = 0, qihe = 0, maxScore = -99, sample = null;
+  const walk = function(idx, picks){
+    if(idx === list.length){
+      const ev = evaluate(c, picks);
+      total++; dist[ev.level]++;
+      if(ev.level === 'qihe') qihe++;
+      if(ev.score > maxScore){ maxScore = ev.score; sample = Object.assign({}, picks); }
+      return;
+    }
+    const slot = list[idx];
+    c.candidates[slot].forEach(function(id){
+      picks[slot] = id;
+      walk(idx + 1, picks);
+    });
+  };
+  walk(0, {});
+  return {id:c.id, total:total, qihe:qihe, dist:dist, maxScore:maxScore, sample:sample};
+}
+window.__EVER = VERSION;
+window.__audit = function(){ return DATA.commissions.map(auditCommission); };
+
+function ensureCur(cid){
+  if(!S.cur || S.cur.cid !== cid){
+    S.cur = {cid:cid, read:[], asked:null, picks:{}, lastDetail:-1};
+  }
+  if(!Array.isArray(S.cur.read)) S.cur.read = [];
+  if(!S.cur.picks || typeof S.cur.picks !== 'object') S.cur.picks = {};
+  return S.cur;
+}
+function doneCount(){ return Object.keys(S.done).length; }
+function nextCommission(){
+  const list = DATA.commissions;
+  for(let i = 0; i < list.length; i++){
+    const c = list[i];
+    if(!S.done[c.id] && chapterOpen(chapterOf(c))) return c;
+  }
+  return null;
+}
+function esc(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+
+const PORTRAITS = {
+  c1:{face:'oval',body:.95,h:168,lean:0,fringe:'side',ageLines:0,brow:'straight',eye:'slit',lip:'thin',topShape:'jacket',age:28,hairShape:'short',hairColor:'#332d29',dh:'h3'},
+  c2:{face:'round',body:1,h:162,lean:-1,fringe:'middle',ageLines:0,brow:'soft',eye:'round',lip:'full',topShape:'shirt',age:30,hairShape:'long',hairColor:'#4a4038',dh:'h2'},
+  c3:{face:'oval',body:1.04,h:165,lean:0,fringe:'side',ageLines:0,brow:'arched',eye:'round',lip:'full',topShape:'wrap',age:33,hairShape:'wave',hairColor:'#4a3b33',dh:'h4'},
+  c4:{face:'heart',body:.96,h:160,lean:1,fringe:'curtain',ageLines:0,brow:'thin',eye:'droop',lip:'small',topShape:'knit',age:26,hairShape:'long',hairColor:'#3f3630',dh:'h2'},
+  c5:{face:'square',body:1.12,h:158,lean:-2,fringe:'middle',ageLines:2,brow:'thin',eye:'hooded',lip:'thin',topShape:'wrap',age:52,hairShape:'bun',hairColor:'#4b423a',dh:'h1',gray:'#cfc7bb'},
+  c6:{face:'round',body:1.08,h:163,lean:1,fringe:'straight',ageLines:1,brow:'soft',eye:'droop',lip:'full',topShape:'shirt',age:31,hairShape:'pony',hairColor:'#3a332d',dh:'h6'},
+  c7:{face:'long',body:.97,h:170,lean:0,fringe:'curtain',ageLines:0,brow:'straight',eye:'sharp',lip:'thin',topShape:'jacket',age:29,hairShape:'bob',hairColor:'#2f2a26',dh:'h3'},
+  c8:{face:'round',body:.95,h:157,lean:2,fringe:'straight',ageLines:0,brow:'thick',eye:'round',lip:'full',topShape:'shirt',age:24,hairShape:'pony',hairColor:'#4a3a2f',dh:'h6'},
+  c9:{face:'square',body:.92,h:152,lean:-3,fringe:'middle',ageLines:2,brow:'thin',eye:'droop',lip:'thin',topShape:'wrap',age:74,hairShape:'updo',hairColor:'#b7b0a6',dh:'h1'},
+  c10:{face:'oval',body:1.06,h:161,lean:-1,fringe:'side',ageLines:1,brow:'arched',eye:'hooded',lip:'full',topShape:'shirt',age:45,hairShape:'wave',hairColor:'#4a3b33',dh:'h4'},
+  c11:{face:'long',body:1,h:166,lean:1,fringe:'side',ageLines:0,brow:'thick',eye:'sharp',lip:'wide',topShape:'jacket',age:35,hairShape:'short',hairColor:'#3b2f2a',dh:'h3'},
+  c12:{face:'heart',body:1,h:164,lean:-1,fringe:'curtain',ageLines:0,brow:'soft',eye:'droop',lip:'thin',topShape:'wrap',age:34,hairShape:'wave',hairColor:'#4a3b33',dh:'h4'}
+};
+const DEFAULT_PORTRAIT = {face:'oval',body:1,h:165,lean:0,fringe:'middle',ageLines:0,brow:'soft',eye:'slit',lip:'full',topShape:'round',age:30,hairShape:'long',hairColor:'#4a4038',dh:'h2'};
+
+function dollOval(cx, cy, rx, ry){
+  const k = 0.5523, ox = rx * k, oy = ry * k;
+  return 'M ' + (cx-rx) + ' ' + cy + ' C ' + (cx-rx) + ' ' + (cy-oy) + ' ' + (cx-ox) + ' ' + (cy-ry) + ' ' + cx + ' ' + (cy-ry) +
+    ' C ' + (cx+ox) + ' ' + (cy-ry) + ' ' + (cx+rx) + ' ' + (cy-oy) + ' ' + (cx+rx) + ' ' + cy +
+    ' C ' + (cx+rx) + ' ' + (cy+oy) + ' ' + (cx+ox) + ' ' + (cy+ry) + ' ' + cx + ' ' + (cy+ry) +
+    ' C ' + (cx-ox) + ' ' + (cy+ry) + ' ' + (cx-rx) + ' ' + (cy+oy) + ' ' + (cx-rx) + ' ' + cy + ' Z';
+}
+function dollFacePath(p){
+  if(p.face === 'round') return dollOval(110, 92, 36, 37);
+  if(p.face === 'long') return dollOval(110, 92, 31, 43);
+  if(p.face === 'heart') return 'M 76 78 C 76 54 88 48 110 48 C 132 48 144 54 144 78 C 144 100 126 124 110 130 C 94 124 76 100 76 78 Z';
+  if(p.face === 'square') return 'M 76 78 C 76 54 88 48 110 48 C 132 48 144 54 144 78 L 142 106 C 140 122 126 130 110 130 C 94 130 80 122 78 106 Z';
+  return dollOval(110, 92, 34, 40);
+}
+function dollFaceBox(p){
+  if(p.face === 'round') return {rx:36, ry:37};
+  if(p.face === 'long') return {rx:31, ry:43};
+  if(p.face === 'heart' || p.face === 'square') return {rx:34, ry:41};
+  return {rx:34, ry:40};
+}
+
+function dollFringe(p){
+  const fb = dollFaceBox(p);
+  const cx = 110, cy = 92, hw = fb.rx + 6, top = cy - fb.ry - 5;
+  const base = 'M ' + (cx-fb.rx+1) + ' ' + (cy-6) +
+    ' C ' + (cx-hw) + ' ' + (top+26) + ' ' + (cx-hw*0.55) + ' ' + top + ' ' + cx + ' ' + top +
+    ' C ' + (cx+hw*0.55) + ' ' + top + ' ' + (cx+hw) + ' ' + (top+26) + ' ' + (cx+fb.rx-1) + ' ' + (cy-6) + ' ';
+  if(p.fringe === 'middle'){
+    return base + 'L ' + (cx+26) + ' ' + (cy-30) +
+      ' C ' + (cx+16) + ' ' + (cy-24) + ' ' + (cx+8) + ' ' + (cy-24) + ' ' + (cx+3) + ' ' + (cy-36) +
+      ' L ' + (cx-3) + ' ' + (cy-36) +
+      ' C ' + (cx-8) + ' ' + (cy-24) + ' ' + (cx-16) + ' ' + (cy-24) + ' ' + (cx-26) + ' ' + (cy-30) + ' Z';
+  }
+  if(p.fringe === 'side'){
+    return base + 'L ' + (cx+27) + ' ' + (cy-32) +
+      ' C ' + (cx+12) + ' ' + (cy-28) + ' ' + (cx-8) + ' ' + (cy-28) + ' ' + (cx-26) + ' ' + (cy-32) + ' Z';
+  }
+  if(p.fringe === 'curtain'){
+    return base + 'L ' + (cx+27) + ' ' + (cy-30) +
+      ' C ' + (cx+20) + ' ' + (cy-18) + ' ' + (cx+12) + ' ' + (cy-18) + ' ' + (cx+6) + ' ' + (cy-26) +
+      ' L ' + (cx+2) + ' ' + (cy-36) + ' L ' + (cx-2) + ' ' + (cy-36) + ' L ' + (cx-6) + ' ' + (cy-26) +
+      ' C ' + (cx-12) + ' ' + (cy-18) + ' ' + (cx-20) + ' ' + (cy-18) + ' ' + (cx-27) + ' ' + (cy-30) + ' Z';
+  }
+  return base + 'L ' + (cx+24) + ' ' + (cy-28) +
+    ' C ' + (cx+10) + ' ' + (cy-24) + ' ' + (cx-10) + ' ' + (cy-24) + ' ' + (cx-24) + ' ' + (cy-28) + ' Z';
+}
+function dollFaceMarks(p, ink, sw, state){
+  const lineOnly = state === 'line', full = state === 'full';
+  const cx = 110, eyeY = 87, browY = 76, lipY = 116;
+  const ex1 = 96, ex2 = 124;
+  const browW = p.brow === 'thick' ? 2.4 : p.brow === 'thin' ? 1.1 : p.brow === 'arched' ? 1.7 : 1.4;
+  const left = p.brow === 'straight'
+    ? '<path d="M 86 77 L 99 77" fill="none" stroke="' + ink + '" stroke-width="' + browW + '" stroke-linecap="round"/>'
+    : p.brow === 'arched'
+      ? '<path d="M 86 78 Q 93 71 99 77" fill="none" stroke="' + ink + '" stroke-width="' + browW + '" stroke-linecap="round"/>'
+      : p.brow === 'thin'
+        ? '<path d="M 88 77 Q 94 73 98 76" fill="none" stroke="' + ink + '" stroke-width="' + browW + '" stroke-linecap="round" opacity=".85"/>'
+        : '<path d="M 86 77 Q 93 72 99 76" fill="none" stroke="' + ink + '" stroke-width="' + browW + '" stroke-linecap="round"/>';
+  const right = p.brow === 'straight'
+    ? '<path d="M 121 77 L 134 77" fill="none" stroke="' + ink + '" stroke-width="' + browW + '" stroke-linecap="round"/>'
+    : p.brow === 'arched'
+      ? '<path d="M 121 77 Q 127 71 134 78" fill="none" stroke="' + ink + '" stroke-width="' + browW + '" stroke-linecap="round"/>'
+      : p.brow === 'thin'
+        ? '<path d="M 122 76 Q 126 73 132 77" fill="none" stroke="' + ink + '" stroke-width="' + browW + '" stroke-linecap="round" opacity=".85"/>'
+        : '<path d="M 121 76 Q 127 72 134 77" fill="none" stroke="' + ink + '" stroke-width="' + browW + '" stroke-linecap="round"/>';
+  function mark(ex){
+    if(p.eye === 'round') return '<path d="M ' + (ex-8) + ' ' + eyeY + ' Q ' + ex + ' ' + (eyeY-7) + ' ' + (ex+8) + ' ' + eyeY + ' Q ' + ex + ' ' + (eyeY+4) + ' ' + (ex-8) + ' ' + eyeY + ' Z" fill="none" stroke="' + ink + '" stroke-width="' + sw + '"/>';
+    if(p.eye === 'hooded') return '<path d="M ' + (ex-9) + ' ' + eyeY + ' Q ' + ex + ' ' + (eyeY-5) + ' ' + (ex+9) + ' ' + eyeY + ' Q ' + ex + ' ' + (eyeY+3) + ' ' + (ex-9) + ' ' + eyeY + ' Z" fill="none" stroke="' + ink + '" stroke-width="' + sw + '"/>' +
+      '<path d="M ' + (ex-9) + ' ' + (eyeY-4) + ' Q ' + ex + ' ' + (eyeY-8) + ' ' + (ex+9) + ' ' + (eyeY-4) + '" fill="none" stroke="' + ink + '" stroke-width="' + sw + '" opacity=".4"/>';
+    if(p.eye === 'droop') return '<path d="M ' + (ex-8) + ' ' + (eyeY-2) + ' Q ' + ex + ' ' + (eyeY-6) + ' ' + (ex+9) + ' ' + (eyeY+1) + ' Q ' + ex + ' ' + (eyeY+4) + ' ' + (ex-8) + ' ' + (eyeY-2) + ' Z" fill="none" stroke="' + ink + '" stroke-width="' + sw + '"/>';
+    if(p.eye === 'sharp') return '<path d="M ' + (ex-9) + ' ' + (eyeY+1) + ' Q ' + ex + ' ' + (eyeY-5) + ' ' + (ex+9) + ' ' + (eyeY-3) + ' Q ' + ex + ' ' + (eyeY+3) + ' ' + (ex-9) + ' ' + (eyeY+1) + ' Z" fill="none" stroke="' + ink + '" stroke-width="' + sw + '"/>';
+    return '<path d="M ' + (ex-9.5) + ' ' + eyeY + ' Q ' + ex + ' ' + (eyeY-6) + ' ' + (ex+9.5) + ' ' + eyeY + ' Q ' + ex + ' ' + (eyeY+3) + ' ' + (ex-9.5) + ' ' + eyeY + ' Z" fill="none" stroke="' + ink + '" stroke-width="' + sw + '"/>';
+  }
+  const shadowOpacity = lineOnly ? 0 : (full ? .4 : .26);
+  const shadow = (!lineOnly && p.eyeColor && p.eyeColor !== 'none')
+    ? '<ellipse cx="' + ex1 + '" cy="' + (eyeY-5) + '" rx="10" ry="3.4" fill="' + p.eyeColor + '" opacity="' + shadowOpacity + '"/>' +
+      '<ellipse cx="' + ex2 + '" cy="' + (eyeY-5) + '" rx="10" ry="3.4" fill="' + p.eyeColor + '" opacity="' + shadowOpacity + '"/>'
+    : '';
+  const irisOpacity = lineOnly ? 0 : (full ? .85 : .45);
+  const iris = '<ellipse cx="' + ex1 + '" cy="' + (eyeY-1) + '" rx="' + (full ? 4 : 3.4) + '" ry="' + (full ? 3.5 : 3) + '" fill="' + ink + '" opacity="' + irisOpacity + '"/>' +
+    '<ellipse cx="' + ex2 + '" cy="' + (eyeY-1) + '" rx="' + (full ? 4 : 3.4) + '" ry="' + (full ? 3.5 : 3) + '" fill="' + ink + '" opacity="' + irisOpacity + '"/>';
+  const lashes = '<path d="M 103 85 l 4 -3 M 104 87 l 4 -1" fill="none" stroke="' + ink + '" stroke-width=".9" opacity=".8"/>' +
+    '<path d="M 117 85 l -4 -3 M 116 87 l -4 -1" fill="none" stroke="' + ink + '" stroke-width=".9" opacity=".8"/>';
+  const nose = '<path d="M 110 96 L 108 104 Q 110 106 112 104" fill="none" stroke="' + ink + '" stroke-width="' + sw + '" stroke-linecap="round" opacity=".7"/>';
+  const lw = p.lip === 'small' ? 6 : p.lip === 'wide' ? 12 : 9;
+  const lh = p.lip === 'thin' ? 3 : 7;
+  const lips = '<path d="M ' + (cx-lw) + ' ' + lipY + ' Q ' + (cx-lw/2) + ' ' + (lipY-4) + ' ' + cx + ' ' + (lipY-2) +
+    ' Q ' + (cx+lw/2) + ' ' + (lipY-4) + ' ' + (cx+lw) + ' ' + lipY + ' Q ' + cx + ' ' + (lipY+lh) + ' ' + (cx-lw) + ' ' + lipY + ' Z"' +
+    ' fill="' + (lineOnly ? 'none' : p.lipColor) + '" fill-opacity="' + (lineOnly ? 0 : (full ? .9 : .72)) + '" stroke="' + ink + '" stroke-width="' + (sw*0.55) + '"/>';
+  let age = '';
+  if(p.ageLines >= 1){
+    age += '<path d="M 89 95 Q 96 97 103 95 M 117 95 Q 124 97 131 95" fill="none" stroke="' + ink + '" stroke-width=".8" opacity=".38"/>' +
+      '<path d="M 94 106 Q 91 114 95 121 M 126 106 Q 129 114 125 121" fill="none" stroke="' + ink + '" stroke-width=".95" opacity=".4"/>';
+  }
+  if(p.ageLines >= 2){
+    age += '<path d="M 101 132 Q 110 135 119 132 M 102 138 Q 110 141 118 138" fill="none" stroke="' + ink + '" stroke-width=".9" opacity=".32"/>' +
+      '<path d="M 93 69 Q 110 66 127 69" fill="none" stroke="' + ink + '" stroke-width=".8" opacity=".25"/>' +
+      '<path d="M 89 118 Q 96 126 103 122 M 131 118 Q 124 126 117 122" fill="none" stroke="' + ink + '" stroke-width=".9" opacity=".3"/>';
+  }
+  if(p.age >= 70){
+    age += '<circle cx="90" cy="110" r="1.6" fill="' + ink + '" opacity=".22"/><circle cx="129" cy="105" r="1.3" fill="' + ink + '" opacity=".2"/>';
+  }
+  return {brows:left + right, eyes:shadow + mark(ex1) + mark(ex2) + iris + lashes, nose:nose, lips:lips, age:age};
+}
+
+function dollTop(sh, cropped, top, skin, ink, sw){
+  const hem = cropped ? 232 : (sh === 'coat' ? 286 : (sh === 'hoodie' ? 256 : 250));
+  const side = (sh === 'slip' || sh === 'vest') ? 40 : (cropped ? 46 : (sh === 'coat' ? 54 : (sh === 'hoodie' ? 52 : 52)));
+  const lx = 110 - side, rx = 110 + side;
+  function dot(x, y){ return '<circle cx="'+x+'" cy="'+y+'" r="1.6" fill="'+ink+'"/>'; }
+  function rib(){
+    let o = '';
+    for(let x = lx + 5; x < rx - 3; x += 8){
+      o += '<path d="M'+x+' '+(hem-5)+' L'+x+' '+(hem-1)+'" stroke="'+ink+'" stroke-width="1" opacity=".45"/>';
+    }
+    return o;
+  }
+
+  let pre = '', post = '', over = '';
+
+  if(cropped){
+    pre += '<path d="M70 230 L150 230 L154 252 L66 252 Z" fill="'+skin+'" stroke="none"/>';
+  }
+  if(sh === 'slip' || sh === 'vest'){
+    pre += '<path d="M80 152 L62 228 L72 231 L86 163 Z" fill="'+skin+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+      '<path d="M140 152 L158 228 L148 231 L134 163 Z" fill="'+skin+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  }
+  if(sh === 'slip'){
+    pre += '<path d="M74 144 L146 144 L150 176 L70 176 Z" fill="'+skin+'" stroke="none"/>';
+  }
+
+  const bt = (sh === 'slip') ? 164 : 148;
+  if(sh === 'slip'){
+    pre += '<path d="M86 164 L110 182 L134 164 L'+rx+' '+hem+' L'+lx+' '+hem+' Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  }else{
+    pre += '<path d="M76 '+bt+' Q110 '+(bt-12)+' 144 '+bt+' L'+rx+' '+hem+' L'+lx+' '+hem+' Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  }
+
+  if(sh !== 'slip' && sh !== 'vest'){
+    if(sh === 'coat'){
+      pre += '<path d="M76 150 L55 236 L70 240 L86 170 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+        '<path d="M144 150 L165 236 L150 240 L134 170 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+    }else if(sh === 'hoodie'){
+      pre += '<path d="M78 152 L61 226 L77 230 L88 172 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+        '<path d="M142 152 L159 226 L143 230 L132 172 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+    }else{
+      pre += '<path d="M76 150 L58 228 L72 232 L86 170 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+        '<path d="M144 150 L162 228 L148 232 L134 170 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+    }
+  }
+
+  if(sh === 'jacket' || sh === 'coat'){
+    post += '<path d="M96 149 L110 178 L124 149" fill="none" stroke="'+ink+'" stroke-width="'+(sw+0.2)+'"/>' +
+      '<path d="M96 149 L86 165 M124 149 L134 165" fill="none" stroke="'+ink+'" stroke-width="'+sw+'" opacity=".85"/>' +
+      '<path d="M110 178 L110 '+hem+'" fill="none" stroke="'+ink+'" stroke-width="'+sw+'" opacity=".8"/>' +
+      (sh === 'coat' ? dot(110, 183) + dot(110, 195) : dot(110, 198) + dot(110, 214));
+    if(sh === 'coat'){
+      post += '<rect x="67" y="206" width="86" height="9" rx="2" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+        '<rect x="105" y="207" width="10" height="7" rx="1" fill="none" stroke="'+ink+'" stroke-width="1.2"/>';
+    }
+  }else if(sh === 'shirt'){
+    post += '<path d="M97 147 L92 164 L106 156 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+      '<path d="M123 147 L128 164 L114 156 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+      '<path d="M110 158 L110 '+hem+'" fill="none" stroke="'+ink+'" stroke-width="'+sw+'" opacity=".8"/>' +
+      dot(110, 180) + dot(110, 198) + dot(110, 216);
+  }else if(sh === 'knit'){
+    post += '<path d="M96 150 Q110 166 124 150" fill="none" stroke="'+ink+'" stroke-width="'+(sw+0.2)+'"/>' +
+      '<path d="M110 164 L110 '+(hem-6)+'" fill="none" stroke="'+ink+'" stroke-width="'+sw+'" opacity=".8"/>' +
+      dot(110, 184) + dot(110, 202) + dot(110, 220) + rib();
+  }else if(sh === 'vest'){
+    post += '<path d="M96 150 Q110 168 124 150" fill="none" stroke="'+ink+'" stroke-width="'+(sw+0.2)+'"/>' +
+      '<path d="M84 150 Q90 178 86 202 M136 150 Q130 178 134 202" fill="none" stroke="'+ink+'" stroke-width="'+sw+'" opacity=".6"/>' +
+      rib();
+  }else if(sh === 'blouse'){
+    post += '<path d="M96 150 Q110 162 124 150" fill="none" stroke="'+ink+'" stroke-width="'+(sw+0.2)+'"/>';
+  }else if(sh === 'hoodie'){
+    post += '<path d="M86 149 Q110 190 134 149 Q110 168 86 149 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+      '<path d="M104 172 L103 186 M116 172 L117 186" stroke="'+ink+'" stroke-width="1.2"/>' +
+      '<path d="M88 198 Q110 192 132 198 L130 220 Q110 226 90 220 Z" fill="none" stroke="'+ink+'" stroke-width="'+sw+'" opacity=".7"/>' +
+      rib();
+  }else if(sh === 'turtleneck'){
+    over = '<path d="M98 134 L122 134 L122 156 L98 156 Z" fill="'+top+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+      '<path d="M98 144 L122 144" stroke="'+ink+'" stroke-width="1" opacity=".55"/>';
+  }else if(sh === 'slip'){
+    post += '<path d="M88 163 L96 145 M132 163 L124 145" stroke="'+top+'" stroke-width="5" stroke-linecap="round"/>' +
+      '<path d="M88 163 L96 145 M132 163 L124 145" stroke="'+ink+'" stroke-width=".7" opacity=".55"/>';
+  }
+
+  return {pre: pre, post: post, over: over};
+}
+
+function dollSVG(look, opts){
+  opts = opts || {};
+  const prof = Object.assign({}, DEFAULT_PORTRAIT, PORTRAITS[opts.cid] || {});
+  const state = opts.state || 'partial';
+  const full = state === 'full';
+  const lineOnly = state === 'line';
+  const ink = full ? '#4a3d30' : '#3a322b';
+  const paper = full ? '#e6dbc4' : '#f2e9da';
+  const skin = full ? ((look.base && look.base.color) || '#efe2d6') : paper;
+  const lipColor = lineOnly ? 'none' : ((look.lip && look.lip.color) || 'none');
+  const eyeColor = lineOnly ? 'none' : ((look.eye && look.eye.color) || 'none');
+  const ownHair = !!prof.hairShape && (!look.hair || look.hair.id === prof.dh);
+  const hairColor = ownHair ? prof.hairColor : ((look.hair && look.hair.color) || '#4a4038');
+  const hair = full ? hairColor : (lineOnly ? paper : '#e8dcc9');
+  const shape = ownHair ? prof.hairShape : ((look.hair && look.hair.shape) || 'long');
+  const top = lineOnly ? paper : ((look.top && look.top.color) || '#e7ded1');
+  const bottom = lineOnly ? paper : ((look.bottom && look.bottom.color) || '#d7ccbc');
+  const bshape = (look.bottom && look.bottom.shape) || 'skirt';
+  const acc = (look.accessory && look.accessory.shape) || 'none';
+  const accColor = full ? ((look.accessory && look.accessory.color) || '#b08d4f') : 'none';
+  const sw = full ? 1.6 : 1.35;
+  const bw = prof.body;
+  const dx = prof.lean * 1.4;
+  const dy = -(prof.h - 165) * 0.35;
+  const bodyT = 'translate(110 0) scale(' + bw + ' 1) translate(-110 0)';
+  const p = Object.assign({}, prof, {skin:skin, eyeColor:eyeColor, lipColor:lipColor});
+  const fm = dollFaceMarks(p, ink, sw, state);
+
+  const fb = dollFaceBox(prof);
+  const hx = 110, hy = 92, htop = hy - fb.ry + 1, hw = fb.rx + 9;
+  const cap = 'M ' + (hx-hw) + ' ' + (hy-6) +
+    ' C ' + (hx-hw-1) + ' ' + (htop+18) + ' ' + (hx-hw*0.6) + ' ' + htop + ' ' + hx + ' ' + htop +
+    ' C ' + (hx+hw*0.6) + ' ' + htop + ' ' + (hx+hw+1) + ' ' + (htop+18) + ' ' + (hx+hw) + ' ' + (hy-6);
+  function hairEl(d){ return '<path d="'+d+'" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>'; }
+
+  let hairBack = '';
+  if(shape === 'short'){
+    hairBack = '';
+  }else if(shape === 'bob'){
+    const e = hy + 46;
+    hairBack = hairEl(cap + ' L ' + (hx+hw-1) + ' ' + e +
+      ' C ' + (hx+16) + ' ' + (e+8) + ' ' + (hx-16) + ' ' + (e+8) + ' ' + (hx-hw+1) + ' ' + e + ' Z');
+  }else if(shape === 'bun' || shape === 'updo'){
+    const e = shape === 'bun' ? hy + 18 : hy + 30;
+    hairBack = hairEl(cap + ' L ' + (hx+hw-2) + ' ' + e +
+      ' C ' + (hx+16) + ' ' + (e+6) + ' ' + (hx-16) + ' ' + (e+6) + ' ' + (hx-hw+2) + ' ' + e + ' Z');
+    if(shape === 'bun'){
+      hairBack += '<circle cx="' + (hx+hw*0.55) + '" cy="' + (htop-9) + '" r="12" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+      if(prof.gray){
+        const bx = hx+hw*0.55, by = htop-9;
+        hairBack += '<path d="M ' + (bx-6) + ' ' + (by+2) + ' L ' + (bx-2) + ' ' + (by-4) + '" fill="none" stroke="'+prof.gray+'" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>' +
+          '<path d="M ' + (bx-3) + ' ' + (by+6) + ' L ' + (bx+1) + ' ' + by + '" fill="none" stroke="'+prof.gray+'" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>' +
+          '<path d="M ' + (bx+1) + ' ' + (by+8) + ' L ' + (bx+5) + ' ' + (by+2) + '" fill="none" stroke="'+prof.gray+'" stroke-width="1.6" stroke-linecap="round" opacity=".65"/>';
+      }
+    }else{
+      hairBack += '<ellipse cx="' + (hx+18) + '" cy="' + (hy+40) + '" rx="7.5" ry="8.5" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+    }
+  }else{
+    const e = hy + 104;
+    hairBack = hairEl(cap + ' L ' + (hx+hw+14) + ' ' + (e-26) +
+      ' C ' + (hx+hw+16) + ' ' + e + ' ' + (hx+18) + ' ' + (e+6) + ' ' + (hx+8) + ' ' + (e+2) +
+      ' L ' + (hx-8) + ' ' + (e+2) +
+      ' C ' + (hx-18) + ' ' + (e+6) + ' ' + (hx-hw-16) + ' ' + e + ' ' + (hx-hw-14) + ' ' + (e-26) + ' Z');
+    if(shape === 'wave'){
+      hairBack = '<circle cx="' + (hx-hw-3) + '" cy="' + (hy+38) + '" r="11" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+        '<circle cx="' + (hx+hw+3) + '" cy="' + (hy+38) + '" r="11" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+        '<circle cx="' + (hx-hw-10) + '" cy="' + (hy+68) + '" r="10" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+        '<circle cx="' + (hx+hw+10) + '" cy="' + (hy+68) + '" r="10" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' + hairBack;
+    }
+    if(shape === 'pony'){
+      hairBack += '<path d="M ' + (hx+hw-14) + ' ' + (htop+12) +
+        ' C ' + (hx+hw+8) + ' ' + (htop+2) + ' ' + (hx+hw+14) + ' ' + (hy+30) + ' ' + (hx+hw+4) + ' ' + (hy+76) +
+        ' L ' + (hx+hw-6) + ' ' + (hy+70) +
+        ' C ' + (hx+hw+2) + ' ' + (hy+30) + ' ' + (hx+hw-6) + ' ' + (hy+6) + ' ' + (hx+hw-20) + ' ' + (htop+18) +
+        ' Z" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+    }
+  }
+
+  let bottomShape = '';
+  if(bshape === 'pants'){
+    bottomShape = '<path d="M68 246 L106 246 L104 362 L82 362 Z" fill="'+bottom+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+      '<path d="M114 246 L152 246 L138 362 L116 362 Z" fill="'+bottom+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  }else if(bshape === 'wide'){
+    bottomShape = '<path d="M64 246 L106 246 L102 364 L76 364 Z" fill="'+bottom+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+      '<path d="M114 246 L156 246 L144 364 L118 364 Z" fill="'+bottom+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  }else if(bshape === 'long'){
+    bottomShape = '<path d="M66 246 L154 246 L174 366 L46 366 Z" fill="'+bottom+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  }else{
+    bottomShape = '<path d="M66 246 L154 246 L166 332 L54 332 Z" fill="'+bottom+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  }
+
+  const accName = (look.accessory && look.accessory.name) || '';
+  let accessory = '';
+  if(acc === 'pearl'){
+    if(accName.indexOf('链') >= 0){
+      accessory = '<circle cx="100" cy="141" r="3.2" fill="'+accColor+'" stroke="'+ink+'" stroke-width=".9"/>' +
+        '<circle cx="110" cy="148" r="3.8" fill="'+accColor+'" stroke="'+ink+'" stroke-width=".9"/>' +
+        '<circle cx="120" cy="141" r="3.2" fill="'+accColor+'" stroke="'+ink+'" stroke-width=".9"/>';
+    }else{
+      accessory = '<circle cx="' + (hx-fb.rx+7) + '" cy="' + (hy+fb.ry-9) + '" r="3.4" fill="'+accColor+'" stroke="'+ink+'" stroke-width=".9"/>' +
+        '<circle cx="' + (hx+fb.rx-7) + '" cy="' + (hy+fb.ry-9) + '" r="3.4" fill="'+accColor+'" stroke="'+ink+'" stroke-width=".9"/>';
+    }
+  }else if(acc === 'glasses'){
+    accessory = '<g fill="none" stroke="'+ink+'" stroke-width="1.5"><circle cx="96" cy="87" r="10"/><circle cx="124" cy="87" r="10"/><path d="M106 87 L114 87"/><path d="M86 86 L' + (hx-fb.rx+2) + ' 84"/><path d="M134 86 L' + (hx+fb.rx-2) + ' 84"/></g>';
+  }else if(acc === 'brooch'){
+    accessory = '<g transform="'+bodyT+'"><path d="M128 168 l7 7 -7 7 -7 -7 Z" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1.2"/></g>';
+  }else if(acc === 'scarf'){
+    if(accName.indexOf('披肩') >= 0){
+      accessory = '<g transform="'+bodyT+'">' +
+        '<path d="M80 144 Q110 156 140 144 L164 180 L154 214 Q110 226 66 214 L56 180 Z" fill="'+accColor+'" fill-opacity=".94" stroke="'+ink+'" stroke-width="1.3"/>' +
+        '<path d="M80 144 Q110 158 140 144" fill="none" stroke="'+ink+'" stroke-width="1.2"/>' +
+        '<path d="M104 160 L100 210" fill="none" stroke="'+ink+'" stroke-width=".9" opacity=".45"/>' +
+        '<path d="M118 160 L122 210" fill="none" stroke="'+ink+'" stroke-width=".9" opacity=".45"/>' +
+        '</g>';
+    }else if(accName.indexOf('丝带') >= 0){
+      accessory = '<path d="M98 136 Q110 143 122 136 L122 141 Q110 148 98 141 Z" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1"/>' +
+        '<circle cx="98" cy="138.5" r="2.6" fill="'+accColor+'" stroke="'+ink+'" stroke-width=".9"/>' +
+        '<path d="M96.5 140.5 L90 151" fill="none" stroke="'+accColor+'" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M96.5 140.5 L94 153" fill="none" stroke="'+accColor+'" stroke-width="3" stroke-linecap="round"/>';
+    }else if(accName.indexOf('方巾') >= 0){
+      accessory = '<path d="M98 137 Q110 144 122 137 L110 160 Z" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1.2"/>' +
+        '<circle cx="110" cy="141" r="2.8" fill="'+accColor+'" stroke="'+ink+'" stroke-width=".9"/>';
+    }else{
+      accessory = '<g transform="'+bodyT+'"><path d="M88 136 Q110 150 132 136 L137 153 Q110 168 83 153 Z" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1.3"/></g>';
+    }
+  }else if(acc === 'bracelet'){
+    const bx = 110 + (58 - 110) * bw;
+    if(accName.indexOf('戒') >= 0){
+      accessory = '<ellipse cx="'+bx+'" cy="241.6" rx="4.4" ry="2.5" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1.1"/>' +
+        (accColor === 'none' ? '' : '<circle cx="'+(bx-1.2)+'" cy="240.8" r=".85" fill="#fffaf2" opacity=".75"/>');
+    }else{
+      accessory = '<ellipse cx="'+bx+'" cy="234" rx="7" ry="3.5" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1.1"/>';
+    }
+  }else if(acc === 'hat'){
+    const brimY = htop + 16;
+    accessory = '<path d="M' + (hx-30) + ' ' + brimY + ' C ' + (hx-31) + ' ' + (brimY-28) + ' ' + (hx+31) + ' ' + (brimY-28) + ' ' + (hx+30) + ' ' + brimY + ' Z" fill="'+accColor+'" stroke="'+ink+'" stroke-width="'+sw+'"/>' +
+      '<ellipse cx="'+hx+'" cy="'+brimY+'" rx="' + (fb.rx+12) + '" ry="7" fill="'+accColor+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  }else if(acc === 'bow'){
+    if(accName.indexOf('发圈') >= 0){
+      if(shape === 'bun' || shape === 'updo'){
+        const cx1 = shape === 'bun' ? hx + hw*0.55 : hx + 18;
+        const cy1 = shape === 'bun' ? htop - 2 : hy + 33;
+        accessory = '<ellipse cx="'+cx1+'" cy="'+cy1+'" rx="9" ry="3.8" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1"/>' +
+          '<path d="M'+(cx1-9)+' '+cy1+' q 2.6 -2.6 5.2 0 q 2.6 -2.6 5.2 0 q 2.6 -2.6 5.2 0" fill="none" stroke="'+ink+'" stroke-width=".9"/>' +
+          '<path d="M'+(cx1-9)+' '+cy1+' q 2.6 2.6 5.2 0 q 2.6 2.6 5.2 0 q 2.6 2.6 5.2 0" fill="none" stroke="'+ink+'" stroke-width=".9"/>';
+      }else{
+        const sx = hx + fb.rx + 6, sy2 = hy + 34;
+        const t = (shape === 'short' || shape === 'bob') ? 12 : 21;
+        accessory = '<path d="M'+(sx-4.5)+' '+(sy2+4)+' q -2.5 '+(t*.57)+' 1.5 '+t+' q 9.5 1 9.5 -'+t+' Z" fill="'+hair+'" stroke="'+ink+'" stroke-width=".9"/>' +
+          '<ellipse cx="'+sx+'" cy="'+sy2+'" rx="7.2" ry="5.2" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1"/>' +
+          '<path d="M'+(sx-7.2)+' '+sy2+' q 2.4 -3.2 4.8 0 q 2.4 -3.2 4.8 0 q 2.4 -3.2 4.8 0" fill="none" stroke="'+ink+'" stroke-width=".9"/>' +
+          '<path d="M'+(sx-7.2)+' '+sy2+' q 2.4 3.2 4.8 0 q 2.4 3.2 4.8 0 q 2.4 3.2 4.8 0" fill="none" stroke="'+ink+'" stroke-width=".9"/>';
+      }
+    }else{
+      accessory = '<path d="M134 66 q10 -9 15 1 q-5 10 -15 9 q-10 1 -15 -9 q5 -10 15 -1 Z" fill="'+accColor+'" stroke="'+ink+'" stroke-width="1.1"/>' +
+        '<circle cx="134" cy="70" r="2.6" fill="'+ink+'"/>';
+    }
+  }
+
+  const shadow = '<ellipse cx="110" cy="372" rx="60" ry="6" fill="rgba(90,62,40,.14)"/>';
+  const legs = '<path d="M97 296 L107 296 L105 361 L96 361 Z" fill="'+skin+'" stroke="'+ink+'" stroke-width="1.2"/>' +
+    '<path d="M113 296 L123 296 L124 361 L115 361 Z" fill="'+skin+'" stroke="'+ink+'" stroke-width="1.2"/>' +
+    '<ellipse cx="100" cy="363" rx="9" ry="4" fill="'+(full ? '#5a4a3d' : 'none')+'" stroke="'+ink+'" stroke-width="1"/>' +
+    '<ellipse cx="120" cy="363" rx="9" ry="4" fill="'+(full ? '#5a4a3d' : 'none')+'" stroke="'+ink+'" stroke-width="1"/>';
+  const tshape = (look.top && look.top.shape) || 'blouse';
+  const tcropped = !!(look.top && look.top.crop);
+  const tp = dollTop(tshape, tcropped, top, skin, ink, sw);
+  const torso = tp.pre + tp.post;
+  const topOver = tp.over;
+  const hands = '<circle cx="58" cy="236" r="6" fill="'+skin+'" stroke="'+ink+'" stroke-width="1.3"/>' +
+    '<circle cx="162" cy="236" r="6" fill="'+skin+'" stroke="'+ink+'" stroke-width="1.3"/>';
+  const neck = '<path d="M100 126 L120 126 L120 156 L100 156 Z" fill="'+skin+'" stroke="'+ink+'" stroke-width="1.4"/>';
+  const head = '<path d="'+dollFacePath(prof)+'" fill="'+skin+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+  const fringe = '<path d="'+dollFringe(prof)+'" fill="'+hair+'" stroke="'+ink+'" stroke-width="'+sw+'"/>';
+
+  let bg = '', grain = '';
+  if(full){
+    const gid = 'dwarm-' + (opts.cid || 'x');
+    bg = '<defs><radialGradient id="'+gid+'" cx="50%" cy="36%" r="72%"><stop offset="0%" stop-color="#f0e3c9"/><stop offset="100%" stop-color="#e6dbc4"/></radialGradient>' +
+      '<filter id="dgrain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="11"/><feColorMatrix type="saturate" values="0"/></filter></defs>' +
+      '<rect x="1" y="1" width="218" height="378" rx="10" fill="url(#'+gid+')"/>';
+    grain = '<rect x="1" y="1" width="218" height="378" rx="10" filter="url(#dgrain)" opacity=".22" style="mix-blend-mode:multiply"/>';
+  }
+
+  return '<svg class="doll" viewBox="0 0 220 380" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + bg +
+    '<g transform="translate('+dx+' '+dy+')">' +
+      shadow + hairBack +
+      '<g transform="'+bodyT+'">' + legs + bottomShape + torso + hands + '</g>' +
+      neck + topOver + head + fringe + fm.brows + fm.eyes + fm.nose + fm.age + fm.lips + accessory +
+    '</g>' + grain + '</svg>';
+}
+
+function swatchStyle(it){
+  if(!it || !it.color) return '';
+  return 'background:' + it.color + ';';
+}
+function swatchClass(it){
+  if(!it) return '';
+  if(!it.color) return 'pattern';
+  return '';
+}
+function render(){
+  document.getElementById('sealCount').textContent = S.seals;
+  document.getElementById('doneCount').textContent = doneCount() + ' / ' + DATA.commissions.length;
+  document.getElementById('verLabel').textContent = VERSION;
+  const main = document.getElementById('main');
+  let html = '';
+  if(S.view === 'commission') html = commissionView();
+  else if(S.view === 'studio') html = studioView();
+  else if(S.view === 'result') html = resultView();
+  else if(S.view === 'book') html = bookView();
+  else html = homeView();
+  main.innerHTML = html;
+}
+function go(view, scroll){
+  S.view = view;
+  save();
+  render();
+  if(scroll !== false) window.scrollTo(0, 0);
+}
+function miniDoll(c, picks){
+  return '<div class="miniDoll">' + dollSVG(lookOf(c, picks), {cid: c.id, state: 'partial'}) + '</div>';
+}
+function orderCard(c){
+  const rec = S.done[c.id];
+  const look = lookOf(c, rec ? rec.picks : (S.cur && S.cur.cid === c.id ? S.cur.picks : {}));
+  const inProgress = S.cur && S.cur.cid === c.id && !rec &&
+    (S.cur.read.length > 0 || S.cur.asked !== null || Object.keys(S.cur.picks).length > 0);
+  const label = rec ? '重看结局' : (inProgress ? '继续' : '接单');
+  const act = rec ? 'replay' : 'open';
+  const stamp = rec ? '<span class="stamp ' + (rec.level === 'qihe' ? 'gold' : '') + '">已归档 · ' + LEVELS[rec.level].name + '</span>' : '';
+  const quote = rec ? (c.stories[rec.level] || c.quote) : c.quote;
+  return '<section class="card commissionCard">' + miniDoll(c, look) +
+    '<div class="cBody">' +
+      '<div class="cTop"><div class="cTitle">' + esc(c.title) + '</div><div class="cNo">第 ' + c.no + ' 单</div></div>' +
+      '<div class="cMeta"><span>' + esc(c.client) + '</span><span>' + esc(c.who) + '</span><span>' + occName(c.occasion) + '</span></div>' +
+      (rec ? '<div>' + stamp + '</div>' : '') +
+      '<div class="cQuote">「' + esc(quote) + '」</div>' +
+      '<div class="cMeta"><span class="redline">底线 · ' + esc(c.redline.text) + '</span></div>' +
+      '<div class="cFoot"><span class="small muted">' + (rec ? '印章 +' + rec.earned : '三处细节 · 一次追问') + '</span>' +
+      '<button class="btn ' + (rec ? 'ghost' : 'accent') + '" data-act="' + act + '" data-cid="' + c.id + '">' + label + '</button></div>' +
+    '</div></section>';
+}
+function lockedCard(c, need){
+  return '<section class="card commissionCard" style="opacity:.5">' + miniDoll(c, {}) +
+    '<div class="cBody">' +
+      '<div class="cTop"><div class="cTitle">' + esc(c.title) + '</div><div class="cNo">第 ' + c.no + ' 单</div></div>' +
+      '<div class="cMeta"><span>' + esc(c.client) + '</span><span>' + esc(c.who) + '</span><span>' + occName(c.occasion) + '</span></div>' +
+      '<div class="cQuote">「' + esc(c.quote) + '」</div>' +
+      '<div class="cFoot"><span class="small muted">再得 ' + need + ' 枚印章解锁</span>' +
+      '<button class="btn ghost" disabled>未解锁</button></div>' +
+    '</div></section>';
+}
+function homeView(){
+  const intro = '<section class="card intro">' +
+    '<div class="eyebrow">M2 垂直切片 · 12 单 · 三章</div>' +
+    '<h2>今天，她想成为谁</h2>' +
+    '<p>看她的细节，问一句话，替她决定妆容与衣橱。没有倒计时，也不会因为你选错就结束；她只会带着你的选择，走出这扇门。</p>' +
+    '<div class="rule"></div>' +
+    '<div class="quote">「妆不是用来修正谁的，是用来送她去她想去的地方。」</div>' +
+    '</section>';
+  const groups = CHAPTERS.map(function(ch){
+    const list = DATA.commissions.filter(function(c){ return chapterOf(c) === ch.no; });
+    const open = chapterOpen(ch.no);
+    const done = list.filter(function(c){ return S.done[c.id]; }).length;
+    const head = '<div class="listTitle"><b>第 ' + ch.no + ' 章 · ' + esc(ch.name) + '</b><span>' +
+      (open ? done + ' / ' + list.length + ' 单 · ' + esc(ch.sub) : '需要 ' + ch.seals + ' 枚印章（当前 ' + S.seals + '）') +
+      '</span></div>';
+    const body = list.map(function(c){
+      return open ? orderCard(c) : lockedCard(c, Math.max(0, ch.seals - S.seals));
+    }).join('');
+    return head + '<div style="display:flex;flex-direction:column;gap:9px">' + body + '</div>';
+  }).join('');
+  return intro + groups +
+    '<div class="card pad small muted" style="line-height:1.8">M2 说明：12 单按印章解锁（第 2 章 4 枚、第 3 章 10 枚），每单都有至少两种「契合」解法；选品不随机、不抽卡。所有选择都会记入埋点，可在页脚「记录」查看。' +
+    (QA ? '　当前为 QA 模式：全部章节已解锁。' : '') + '</div>';
+}
+
+function commissionView(){
+  const c = cById(S.cur && S.cur.cid);
+  if(!c){ S.view = 'home'; return homeView(); }
+  const cur = ensureCur(c.id);
+  const look = lookOf(c, cur.picks);
+  const detailNote = cur.lastDetail >= 0 && c.details[cur.lastDetail]
+    ? '<div class="detailNote show">' + esc(c.details[cur.lastDetail].text) + '</div>'
+    : '<div class="detailNote">点开三个细节，再决定问什么。细节不会直接给答案，只会告诉你她在意什么。</div>';
+  const details = c.details.map(function(d, i){
+    const read = cur.read.indexOf(i) >= 0;
+    return '<button class="detail ' + (read ? 'read' : '') + '" data-act="detail" data-i="' + i + '">' +
+      '<span class="di">' + (read ? '✓' : '·') + '</span><span class="dn">' + esc(d.name) + '</span></button>';
+  }).join('');
+  const qs = c.questions.map(function(q, i){
+    const picked = cur.asked === i;
+    const disabled = cur.asked !== null && !picked;
+    return '<button class="qOpt ' + (picked ? 'picked' : '') + '" data-act="ask" data-i="' + i + '"' +
+      (disabled ? ' disabled' : '') + '>' +
+      '<span>' + esc(q.q) + '</span><span class="tagPreview">' + (picked ? tagName(q.tag) : '问一句') + '</span></button>';
+  }).join('');
+  const answer = cur.asked !== null && c.questions[cur.asked]
+    ? '<div class="answer">' + esc(c.questions[cur.asked].answer) + '<b>' + tagName(c.questions[cur.asked].tag) + '</b></div>'
+    : '';
+  return '<div class="row" style="gap:6px"><button class="btn ghost" style="flex:0 0 auto;min-height:36px;padding:0 12px;font-size:12px" data-act="home">返回</button>' +
+    '<div class="small muted" style="display:flex;align-items:center;justify-content:flex-end">已读细节 ' + cur.read.length + ' / 3</div></div>' +
+    '<section class="card scene">' +
+      '<div class="mirror"><span class="tag">妆前 · 线稿</span><span class="tag right">' + occName(c.occasion) + '</span>' + dollSVG(look, {cid: c.id, state: 'line'}) + '</div>' +
+      '<div class="cHead" style="margin-top:10px"><div><h2>' + esc(c.title) + '</h2><div class="who">' + esc(c.client) + ' · ' + esc(c.who) + '</div></div>' +
+        '<span class="redline">' + esc(c.redline.text) + '</span></div>' +
+      '<div class="quoteBox">「' + esc(c.quote) + '」</div>' +
+    '</section>' +
+    '<section class="card pad">' +
+      '<div class="secLabel"><b>她带着什么</b><span>点开看看</span></div>' +
+      '<div class="detailGrid">' + details + '</div>' + detailNote +
+    '</section>' +
+    '<section class="card pad">' +
+      '<div class="secLabel"><b>问一句</b><span>' + (cur.asked === null ? '只能问一次' : '已经问过了') + '</span></div>' +
+      '<div class="qList">' + qs + '</div>' + answer +
+    '</section>' +
+    '<div class="actionBar"><button class="btn primary block" data-act="start">开始妆造</button>' +
+      '<div class="hintLine">不问也可以开始，但你会少一条线索。</div></div>';
+}
+
+function selectedText(cur, slot){
+  const it = cur.picks[slot] ? itemById(cur.picks[slot]) : null;
+  return it ? it.name : '未选';
+}
+
+function studioView(){
+  const c = cById(S.cur && S.cur.cid);
+  if(!c){ S.view = 'home'; return homeView(); }
+  const cur = ensureCur(c.id);
+  const active = cur.slot && SLOTS.indexOf(cur.slot) >= 0 ? cur.slot : 'base';
+  cur.slot = active;
+  const look = lookOf(c, cur.picks);
+  const count = Object.keys(cur.picks).length;
+  const lookCol = SLOTS.map(function(slot){
+    return '<button class="lookSlot ' + (slot === active ? 'on' : '') + '" data-act="tab" data-slot="' + slot + '">' +
+      '<span>' + SLOT_LABEL[slot] + '</span><b>' + esc(selectedText(cur, slot)) + '</b></button>';
+  }).join('');
+  const tabs = SLOTS.map(function(slot){
+    return '<button class="tab ' + (slot === active ? 'on' : '') + '" data-act="tab" data-slot="' + slot + '">' +
+      SLOT_LABEL[slot] + (cur.picks[slot] ? '<i class="dot"></i>' : '') + '</button>';
+  }).join('');
+  const cards = c.candidates[active].map(function(id){
+    const it = itemById(id);
+    const sel = cur.picks[active] === id;
+    const bad = it.attrs.indexOf(c.redline.attr) >= 0;
+    const cls = 'itemCard ' + (sel ? 'sel ' : '') + (sel && bad ? 'warn' : '');
+    return '<button class="' + cls + '" data-act="pick" data-id="' + id + '">' +
+      '<span class="swatch ' + swatchClass(it) + '" style="' + swatchStyle(it) + '"></span>' +
+      '<span class="nm">' + esc(it.name) + '</span>' +
+      '<span class="tg">' + it.tags.map(tagName).join(' / ') + '</span>' +
+    '</button>';
+  }).join('');
+  const canGo = count === SLOTS.length;
+  return '<div class="row" style="gap:6px"><button class="btn ghost" style="flex:0 0 auto;min-height:36px;padding:0 12px;font-size:12px" data-act="back-commission">看委托</button>' +
+    '<div class="small muted" style="display:flex;align-items:center;justify-content:flex-end">已选 ' + count + ' / 7</div></div>' +
+    '<section class="card scene" style="padding:9px">' +
+      '<div class="studioTop">' +
+        '<div class="mirror"><span class="tag">妆造中</span><span class="tag right">' + occName(c.occasion) + '</span>' + dollSVG(look, {cid: c.id, state: 'partial'}) + '</div>' +
+        '<div class="lookCol">' + lookCol + '</div>' +
+      '</div>' +
+    '</section>' +
+    '<div class="tabs">' + tabs + '</div>' +
+    '<section class="card pad" style="padding:10px">' +
+      '<div class="secLabel" style="margin-top:0"><b>' + SLOT_LABEL[active] + '</b><span>每件都带一个诉求</span></div>' +
+      '<div class="optGrid">' + cards + '</div>' +
+      '<div class="hintLine">选错不会被拦住，只会在出门时被记住。</div>' +
+    '</section>' +
+    '<div class="actionBar row"><button class="btn ghost" data-act="back-commission">再看一眼委托</button>' +
+      '<button class="btn primary" data-act="goout"' + (canGo ? '' : ' disabled') + '>出门</button></div>';
+}
+function resultView(){
+  const c = cById(S.cur && S.cur.cid);
+  if(!c){ S.view = 'home'; return homeView(); }
+  const rec = S.done[c.id];
+  if(!rec){ S.view = 'home'; return homeView(); }
+  const lv = LEVELS[rec.level];
+  const picks = rec.picks;
+  const look = lookOf(c, picks);
+  const picked = SLOTS.map(function(s){ return itemById(picks[s]); }).filter(Boolean);
+  const badItems = picked.filter(function(it){ return it.attrs.indexOf(c.redline.attr) >= 0; });
+  const chips = picked.map(function(it){
+    const bad = it.attrs.indexOf(c.redline.attr) >= 0;
+    return '<span class="chip ' + (bad ? 'bad' : 'hit') + '">' + esc(it.name) + '</span>';
+  }).join('');
+  const story = c.stories[rec.level] || '';
+  const earned = S.cur && typeof S.cur.lastEarned === 'number' ? S.cur.lastEarned : 0;
+  const next = nextCommission();
+  return '<section class="card resultHero">' +
+      '<div class="rail"></div>' +
+      '<div class="eyebrow">第 ' + c.no + ' 单 · 已归档</div>' +
+      '<div class="lv">' + lv.name + '</div>' +
+      '<div class="lvSub">' + lv.sub + '</div>' +
+      '<div class="compare">' +
+        '<div class="cmp"><div class="cd">' + dollSVG(lookOf(c, {}), {cid: c.id, state: 'line'}) + '</div><span>妆前</span></div>' +
+        '<div class="cmpArrow">→</div>' +
+        '<div class="cmp"><div class="cd">' + dollSVG(look, {cid: c.id, state: 'full'}) + '</div><span>出门</span></div>' +
+      '</div>' +
+    '</section>' +
+    '<section class="card blocks">' +
+      '<div class="blk"><div class="k">她说的</div><div class="v serif">「' + esc(c.quote) + '」</div></div>' +
+      '<div class="blk"><div class="k">她在意的</div><div class="v">' + tagName(c.main) + '（主）· ' + tagName(c.secondary) + '（次）' +
+        '<div class="small muted" style="margin-top:3px">底线：' + esc(c.redline.text) + (badItems.length ? ' · 你触线 ' + badItems.length + ' 件' : ' · 没有触线') + '</div></div></div>' +
+      '<div class="blk"><div class="k">你给她的</div><div class="v"><div class="chips">' + chips + '</div></div></div>' +
+    '</section>' +
+    '<div class="story"><span class="cap">她的一天</span>' + esc(story) + '</div>' +
+    '<details class="scoreDetail"><summary>灰盒评分明细</summary>' +
+      '完成 +2 ｜ 主诉求命中 ' + rec.mainHits + ' 件（≥4 得 +3）｜ 次诉求命中 ' + rec.secHits + ' 件（≥3 得 +2）｜ 场合命中 ' + rec.occHits + ' 件（≥2 得 +1）｜ 底线 ' + rec.bad + ' 件（每件 -3，且不计正向标签）｜ 合计 ' + rec.score +
+    '</details>' +
+    '<div class="rewardRow">' +
+      '<div class="r"><b>+' + earned + '</b>印章</div>' +
+      '<div class="r"><b>1</b>客人簿页</div>' +
+      '<div class="r"><b>—</b>衣橱灰盒未开</div>' +
+    '</div>' +
+    '<div class="row"><button class="btn primary" data-act="' + (next ? 'open' : 'home') + '"' + (next ? ' data-cid="' + next.id + '"' : '') + '>' + (next ? '下一单 · ' + esc(next.title) : '回到首页') + '</button>' +
+      '<button class="btn ghost" data-act="retry">再整一次</button></div>' +
+    '<div class="row"><button class="btn ghost" data-act="book">客人簿</button><button class="btn ghost" data-act="home">返回首页</button></div>' +
+    '<div class="hintLine">重复游玩不会重复计印章；已解锁的结局与客人簿不会丢失。</div>';
+}
+
+function bookView(){
+  const rows = DATA.commissions.map(function(c){
+    const rec = S.done[c.id];
+    if(rec){
+      return '<section class="card bookRow">' + miniDoll(c, rec.picks) +
+        '<div class="bBody"><div class="bTop"><div class="bTitle">' + esc(c.title) + '</div><span class="bLv">' + LEVELS[rec.level].name + '</span></div>' +
+          '<div class="cMeta"><span>' + esc(c.client) + '</span><span>' + occName(c.occasion) + '</span></div>' +
+          '<div class="bStory">' + esc(c.stories[rec.level]) + '</div>' +
+          '<div style="margin-top:auto"><button class="btn ghost" style="min-height:32px;font-size:11px;padding:0 10px" data-act="replay" data-cid="' + c.id + '">重看这一页</button></div>' +
+        '</div></section>';
+    }
+    return '<section class="card bookRow">' + miniDoll(c, {}) +
+      '<div class="bBody"><div class="bTop"><div class="bTitle">' + esc(c.title) + '</div><span class="bLv" style="color:var(--faint)">' + (chapterOpen(chapterOf(c)) ? '未归档' : '未解锁') + '</span></div>' +
+        '<div class="cMeta"><span>' + esc(c.client) + '</span><span>' + esc(c.who) + '</span></div>' +
+        '<div class="bStory">' + (chapterOpen(chapterOf(c)) ? '她还在等一个愿意读懂她的人。' : '这一页还锁着，要等更多印章。') + '</div>' +
+        '<div style="margin-top:auto"><button class="btn ghost" style="min-height:32px;font-size:11px;padding:0 10px" data-act="open" data-cid="' + c.id + '"' +
+          (chapterOpen(chapterOf(c)) ? '' : ' disabled') + '>' + (chapterOpen(chapterOf(c)) ? '去接单' : '未解锁') + '</button></div>' +
+      '</div></section>';
+  }).join('');
+  return '<div class="row" style="gap:6px"><button class="btn ghost" style="flex:0 0 auto;min-height:36px;padding:0 12px;font-size:12px" data-act="home">返回</button>' +
+    '<div class="small muted" style="display:flex;align-items:center;justify-content:flex-end">' + doneCount() + ' / ' + DATA.commissions.length + ' 页 · 印章 ' + S.seals + '</div></div>' +
+    '<div class="card pad" style="padding:13px 14px"><div class="eyebrow">客人簿</div>' +
+      '<div class="serif" style="font-size:19px;letter-spacing:2px;margin-top:3px">她来过，然后出门了</div>' +
+      '<div class="small muted" style="margin-top:5px;line-height:1.7">每一页记下她说的、她真正在意的，以及你给她的那套衣服。全书 12 页，分属三章。</div></div>' +
+    rows +
+    '<div class="row" style="margin-top:2px"><button class="btn ghost" data-act="home">回到首页</button>' +
+      '<button class="btn ghost" data-act="reset" style="color:#9c4f45">清空本机存档</button></div>';
+}
+
+function openCommission(cid){
+  const c = cById(cid);
+  if(!c) return;
+  if(!chapterOpen(chapterOf(c))){
+    toast('还差 ' + Math.max(0, CHAPTERS[chapterOf(c) - 1].seals - S.seals) + ' 枚印章才能接这一单。');
+    return;
+  }
+  if(S.done[cid] || !S.cur || S.cur.cid !== cid){
+    S.cur = {cid:cid, read:[], asked:null, picks:{}, lastDetail:-1, slot:'base'};
+  }
+  ensureCur(cid);
+  log('commission_start', {cid:cid});
+  go('commission');
+}
+
+function startStudio(){
+  const c = cById(S.cur && S.cur.cid);
+  if(!c) return;
+  const cur = ensureCur(c.id);
+  cur.slot = cur.slot || 'base';
+  log('studio_open', {cid:c.id});
+  go('studio');
+}
+
+function finishLook(){
+  const c = cById(S.cur && S.cur.cid);
+  if(!c) return;
+  const cur = ensureCur(c.id);
+  const count = Object.keys(cur.picks).length;
+  if(count < SLOTS.length){ toast('还差 ' + (SLOTS.length - count) + ' 件，妆造还没完成。'); return; }
+  const ev = evaluate(c, cur.picks);
+  const prev = S.done[c.id];
+  let earned = 0;
+  if(!prev){
+    earned = 1 + (ev.level === 'qihe' ? 2 : ev.level === 'heshi' ? 1 : 0);
+    S.seals += earned;
+    S.done[c.id] = {level:ev.level, score:ev.score, mainHits:ev.mainHits, secHits:ev.secHits,
+      occHits:ev.occHits, bad:ev.bad, picks:Object.assign({}, cur.picks), earned:earned, ts:Date.now()};
+  }else{
+    S.done[c.id] = Object.assign({}, prev, {level:ev.level, score:ev.score, mainHits:ev.mainHits,
+      secHits:ev.secHits, occHits:ev.occHits, bad:ev.bad, picks:Object.assign({}, cur.picks), ts:Date.now()});
+  }
+  cur.lastEarned = earned;
+  log('goout', {cid:c.id});
+  log('result', {cid:c.id, level:ev.level, score:ev.score, first:!prev});
+  go('result');
+}
+
+function replayCommission(cid){
+  const rec = S.done[cid];
+  const c = cById(cid);
+  if(!rec || !c){ openCommission(cid); return; }
+  S.cur = {cid:cid, read:[], asked:null, picks:Object.assign({}, rec.picks), lastDetail:-1, slot:'base', lastEarned:0};
+  log('result_replay', {cid:cid});
+  go('result');
+}
+
+function retryCommission(){
+  const c = cById(S.cur && S.cur.cid);
+  if(!c) return;
+  const cur = ensureCur(c.id);
+  cur.picks = {};
+  cur.lastEarned = 0;
+  cur.slot = 'base';
+  log('retry', {cid:c.id});
+  go('studio');
+}
+
+let toastTimer = null;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('on'); }, 2100);
+}
+
+function openLog(){
+  const counts = {};
+  S.events.forEach(function(e){ counts[e.type] = (counts[e.type] || 0) + 1; });
+  const countRows = Object.keys(counts).sort().map(function(k){
+    return '<div class="evRow"><b>' + esc(k) + '</b><span>' + counts[k] + '</span></div>';
+  }).join('') || '<div class="small muted">还没有记录。</div>';
+  const rows = S.events.slice(-20).reverse().map(function(e){
+    const d = new Date(e.t);
+    const tm = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2);
+    const extra = Object.assign({}, e); delete extra.t; delete extra.type;
+    return '<div class="evRow"><span>' + tm + ' · ' + esc(e.type) + '</span><b>' + esc(JSON.stringify(extra)) + '</b></div>';
+  }).join('');
+  document.getElementById('sheet').innerHTML =
+    '<h3>埋点记录</h3>' +
+    '<div class="small muted" style="margin-bottom:6px">本地 localStorage · 最近 ' + S.events.length + ' 条（最多 300 条）</div>' +
+    countRows +
+    '<h3 style="margin-top:14px">最近事件</h3>' + rows +
+    '<div class="row" style="margin-top:12px"><button class="btn primary" data-act="copy">复制 JSON</button>' +
+      '<button class="btn ghost" data-act="close-modal">关闭</button></div>';
+  document.getElementById('modal').classList.remove('hidden');
+}
+
+function copyEvents(){
+  const text = JSON.stringify(S.events, null, 2);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ toast('埋点已复制'); }, function(){ toast('复制失败，请手动截图'); });
+  }else{
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); toast('埋点已复制'); }catch(e){ toast('复制失败'); }
+    document.body.removeChild(ta);
+  }
+}
+
+document.getElementById('bookBtn').addEventListener('click', function(){
+  log('guestbook_open', {});
+  save();
+  go('book');
+});
+document.getElementById('logBtn').addEventListener('click', openLog);
+
+document.addEventListener('click', function(e){
+  const el = e.target.closest('[data-act]');
+  if(!el || el.disabled) return;
+  const act = el.getAttribute('data-act');
+  const cid = el.getAttribute('data-cid');
+  const cur = S.cur;
+  if(act === 'open'){ openCommission(cid); return; }
+  if(act === 'replay'){ replayCommission(cid); return; }
+  if(act === 'home'){ go('home'); return; }
+  if(act === 'book'){ log('guestbook_open', {}); save(); go('book'); return; }
+  if(act === 'back-commission'){ go('commission'); return; }
+  if(act === 'start'){ startStudio(); return; }
+  if(act === 'retry'){ retryCommission(); return; }
+  if(act === 'goout'){ finishLook(); return; }
+  if(act === 'close-modal'){ document.getElementById('modal').classList.add('hidden'); return; }
+  if(act === 'copy'){ copyEvents(); return; }
+  if(act === 'reset'){
+    if(window.confirm('清空本机存档？12 单归档与印章都会消失，埋点也会清空。')){
+      try{ localStorage.removeItem(STORE_KEY); }catch(err){}
+      S = freshState();
+      log('session_start', {version:VERSION, reset:true});
+      save();
+      go('home');
+      toast('本机存档已清空');
+    }
+    return;
+  }
+  if(!cur) return;
+  if(act === 'detail'){
+    const i = Number(el.getAttribute('data-i'));
+    if(cur.read.indexOf(i) < 0) cur.read.push(i);
+    cur.lastDetail = i;
+    log('detail_tap', {cid:cur.cid, index:i});
+    save(); render(); return;
+  }
+  if(act === 'ask'){
+    if(cur.asked !== null) return;
+    const i = Number(el.getAttribute('data-i'));
+    cur.asked = i;
+    const q = cById(cur.cid).questions[i];
+    log('ask_choose', {cid:cur.cid, index:i, tag:q.tag});
+    save(); render(); return;
+  }
+  if(act === 'tab'){
+    cur.slot = el.getAttribute('data-slot');
+    save(); render(); return;
+  }
+  if(act === 'pick'){
+    const c = cById(cur.cid);
+    const id = el.getAttribute('data-id');
+    const it = itemById(id);
+    const slot = cur.slot;
+    if(cur.picks[slot] === id){
+      delete cur.picks[slot];
+    }else{
+      cur.picks[slot] = id;
+      if(it.attrs.indexOf(c.redline.attr) >= 0){
+        log('redline_warn', {cid:c.id, slot:slot, id:id});
+        toast('她说过「' + c.redline.text + '」。');
+      }
+    }
+    const isMakeup = ['base','eye','lip','hair'].indexOf(slot) >= 0;
+    log(isMakeup ? 'makeup_pick' : 'outfit_pick', {cid:c.id, slot:slot, id:id, on:cur.picks[slot] === id});
+    save(); render(); return;
+  }
+});
+
+document.getElementById('modal').addEventListener('click', function(e){
+  if(e.target === this) this.classList.add('hidden');
+});
+
+log('session_start', {version:VERSION});
+save();
+render();
+</script>
+</body>
+</html>
